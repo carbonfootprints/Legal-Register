@@ -66,22 +66,29 @@ app.post('/api/cron/trigger-email-check', async (req, res) => {
 // Error handler middleware (must be last)
 app.use(errorHandler);
 
-// Start cron job for email notifications
-CronService.startRenewalNotificationJob();
+// Start cron job for email notifications (only in development)
+if (process.env.NODE_ENV !== 'production') {
+  CronService.startRenewalNotificationJob();
+}
 
-// Start server
+// Start server (only in development, not on Vercel)
 const PORT = process.env.PORT || 5000;
-app.listen(PORT, () => {
-  console.log('=====================================');
-  console.log(`Server running in ${process.env.NODE_ENV} mode`);
-  console.log(`Server listening on port ${PORT}`);
-  console.log(`API URL: http://localhost:${PORT}`);
-  console.log('=====================================');
-});
+if (process.env.NODE_ENV !== 'production') {
+  app.listen(PORT, () => {
+    console.log('=====================================');
+    console.log(`Server running in ${process.env.NODE_ENV} mode`);
+    console.log(`Server listening on port ${PORT}`);
+    console.log(`API URL: http://localhost:${PORT}`);
+    console.log('=====================================');
+  });
 
-// Handle unhandled promise rejections
-process.on('unhandledRejection', (err) => {
-  console.log(`Error: ${err.message}`);
-  console.log('Shutting down the server due to unhandled promise rejection');
-  process.exit(1);
-});
+  // Handle unhandled promise rejections
+  process.on('unhandledRejection', (err) => {
+    console.log(`Error: ${err.message}`);
+    console.log('Shutting down the server due to unhandled promise rejection');
+    process.exit(1);
+  });
+}
+
+// Export for Vercel serverless
+export default app;
