@@ -9,9 +9,8 @@ class ExcelExport {
     worksheet.columns = [
       { header: 'SL No.', key: 'slNo', width: 8 },
       { header: 'Permit', key: 'permit', width: 30 },
-      { header: 'Authorization No.', key: 'authorizationNo', width: 25 },
+      { header: 'Document No.', key: 'documentNo', width: 25 },
       { header: 'Issuing Authority', key: 'issuingAuthority', width: 40 },
-      { header: 'Date of Application', key: 'dateOfApplication', width: 18 },
       { header: 'Date of Issue', key: 'dateOfIssue', width: 18 },
       { header: 'Date of Expiry', key: 'dateOfExpiry', width: 18 },
       { header: 'Due Date for Renewal', key: 'dueDateForRenewal', width: 20 },
@@ -37,9 +36,8 @@ class ExcelExport {
       worksheet.addRow({
         slNo: item.slNo,
         permit: item.permit,
-        authorizationNo: item.authorizationNo,
+        documentNo: item.documentNo,
         issuingAuthority: item.issuingAuthority,
-        dateOfApplication: item.dateOfApplication ? new Date(item.dateOfApplication).toLocaleDateString('en-IN') : 'N/A',
         dateOfIssue: item.dateOfIssue ? new Date(item.dateOfIssue).toLocaleDateString('en-IN') : 'N/A',
         dateOfExpiry: item.dateOfExpiry ? new Date(item.dateOfExpiry).toLocaleDateString('en-IN') : 'N/A',
         dueDateForRenewal: item.dueDateForRenewal ? new Date(item.dueDateForRenewal).toLocaleDateString('en-IN') : 'N/A',

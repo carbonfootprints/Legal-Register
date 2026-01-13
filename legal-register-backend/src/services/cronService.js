@@ -57,7 +57,7 @@ class CronService {
         const dueDate = new Date(register.dueDateForRenewal);
         dueDate.setHours(0, 0, 0, 0);
 
-        console.log(`Checking: ${register.permit} (${register.authorizationNo})`);
+        console.log(`Checking: ${register.permit} (${register.documentNo})`);
         console.log(`  Due Date: ${dueDate.toDateString()}`);
         console.log(`  Yesterday: ${yesterday.toDateString()}`);
         console.log(`  Today: ${today.toDateString()}`);
@@ -132,13 +132,13 @@ class CronService {
       });
 
       if (existingLog) {
-        console.log(`✓ Email already sent: ${emailType} for ${register.authorizationNo} (${register.permit})`);
+        console.log(`✓ Email already sent: ${emailType} for ${register.documentNo} (${register.permit})`);
         return false;
       }
 
       // Check if user has email
       if (!register.createdBy || !register.createdBy.email) {
-        console.log(`✗ No email found for register: ${register.authorizationNo}`);
+        console.log(`✗ No email found for register: ${register.documentNo}`);
         return false;
       }
 
@@ -176,10 +176,10 @@ class CronService {
         dueDateForRenewal: register.dueDateForRenewal
       });
 
-      console.log(`✓ Sent ${emailType} for ${register.authorizationNo} (${register.permit}) to ${recipientEmail}`);
+      console.log(`✓ Sent ${emailType} for ${register.documentNo} (${register.permit}) to ${recipientEmail}`);
       return true;
     } catch (error) {
-      console.error(`✗ Failed to send ${emailType} for ${register.authorizationNo}:`, error.message);
+      console.error(`✗ Failed to send ${emailType} for ${register.documentNo}:`, error.message);
 
       // Log failure
       try {

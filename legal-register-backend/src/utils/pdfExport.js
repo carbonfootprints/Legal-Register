@@ -36,15 +36,14 @@ class PDFExport {
 
         const columns = [
           { key: 'slNo', header: 'SL', width: 30, align: 'center' },
-          { key: 'permit', header: 'Permit', width: 110, align: 'left' },
-          { key: 'authorizationNo', header: 'Auth No.', width: 75, align: 'left' },
-          { key: 'issuingAuthority', header: 'Issuing Authority', width: 110, align: 'left' },
-          { key: 'dateOfApplication', header: 'App Date', width: 62, align: 'center' },
-          { key: 'dateOfIssue', header: 'Issue Date', width: 62, align: 'center' },
-          { key: 'dueDateForRenewal', header: 'Renewal Due', width: 65, align: 'center' },
-          { key: 'reportingFrequency', header: 'Frequency', width: 75, align: 'left' },
-          { key: 'responsibility', header: 'Resp.', width: 75, align: 'left' },
-          { key: 'status', header: 'Status', width: 56, align: 'center' }
+          { key: 'permit', header: 'Permit', width: 120, align: 'left' },
+          { key: 'documentNo', header: 'Document No.', width: 85, align: 'left' },
+          { key: 'issuingAuthority', header: 'Issuing Authority', width: 120, align: 'left' },
+          { key: 'dateOfIssue', header: 'Issue Date', width: 70, align: 'center' },
+          { key: 'dueDateForRenewal', header: 'Renewal Due', width: 70, align: 'center' },
+          { key: 'reportingFrequency', header: 'Frequency', width: 80, align: 'left' },
+          { key: 'responsibility', header: 'Resp.', width: 80, align: 'left' },
+          { key: 'status', header: 'Status', width: 65, align: 'center' }
         ];
 
         // Calculate total table width
@@ -106,14 +105,13 @@ class PDFExport {
           // Draw cell data
           const rowData = {
             slNo: item.slNo || '',
-            permit: (item.permit || '').substring(0, 35),
-            authorizationNo: (item.authorizationNo || '').substring(0, 20),
-            issuingAuthority: (item.issuingAuthority || '').substring(0, 35),
-            dateOfApplication: item.dateOfApplication ? new Date(item.dateOfApplication).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : 'N/A',
+            permit: (item.permit || '').substring(0, 40),
+            documentNo: (item.documentNo || '').substring(0, 25),
+            issuingAuthority: (item.issuingAuthority || '').substring(0, 40),
             dateOfIssue: item.dateOfIssue ? new Date(item.dateOfIssue).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : 'N/A',
             dueDateForRenewal: item.dueDateForRenewal ? new Date(item.dueDateForRenewal).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : 'N/A',
-            reportingFrequency: (item.reportingFrequency || 'N/A').substring(0, 20),
-            responsibility: (item.responsibility || '').substring(0, 20),
+            reportingFrequency: (item.reportingFrequency || 'N/A').substring(0, 22),
+            responsibility: (item.responsibility || '').substring(0, 22),
             status: item.status || 'N/A'
           };
 

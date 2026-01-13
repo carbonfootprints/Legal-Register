@@ -6,7 +6,8 @@ import {
   updateLegalRegister,
   deleteLegalRegister,
   getExpiryAlerts,
-  getStatistics
+  getStatistics,
+  getArchivedLegalRegisters
 } from '../controllers/legalRegisterController.js';
 import { protect } from '../middleware/auth.js';
 import CronService from '../services/cronService.js';
@@ -20,6 +21,7 @@ router.use(protect);
 // Statistics and alerts routes (must be before :id route)
 router.get('/stats/summary', getStatistics);
 router.get('/alerts/expiry', getExpiryAlerts);
+router.get('/archived', getArchivedLegalRegisters);
 
 // Test endpoint to manually trigger email notifications
 router.post('/test/send-emails', async (req, res) => {

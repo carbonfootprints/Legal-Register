@@ -144,8 +144,8 @@ class EmailService {
                 <td>${register.permit}</td>
               </tr>
               <tr>
-                <td>Authorization No.</td>
-                <td>${register.authorizationNo}</td>
+                <td>Document No.</td>
+                <td>${register.documentNo}</td>
               </tr>
               <tr>
                 <td>Issuing Authority</td>

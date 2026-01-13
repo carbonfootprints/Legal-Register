@@ -21,6 +21,11 @@ const userSchema = new mongoose.Schema({
     required: [true, 'Name is required'],
     trim: true
   },
+  companyName: {
+    type: String,
+    trim: true,
+    default: 'Legal Register Management'
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],

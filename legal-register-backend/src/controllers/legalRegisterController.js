@@ -31,14 +31,14 @@ export const getAllLegalRegisters = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Build query
-    let query = {};
+    // Build query - exclude archived by default
+    let query = { isArchived: false };
 
-    // Text search (permit name or authorization number)
+    // Text search (permit name or document number)
     if (req.query.search) {
       query.$or = [
         { permit: { $regex: req.query.search, $options: "i" } },
-        { authorizationNo: { $regex: req.query.search, $options: "i" } },
+        { documentNo: { $regex: req.query.search, $options: "i" } },
         { issuingAuthority: { $regex: req.query.search, $options: "i" } },
       ];
     }
@@ -296,6 +296,63 @@ export const getStatistics = async (req, res) => {
         expiringSoon,
         overdue,
       },
+    });
+  } catch (error) {
+    res.status(500).json({
+      success: false,
+      message: error.message,
+    });
+  }
+};
+
+// @desc    Get archived (expired) legal register entries
+// @route   GET /api/legal-registers/archived
+// @access  Private
+export const getArchivedLegalRegisters = async (req, res) => {
+  try {
+    const page = parseInt(req.query.page) || 1;
+    const limit = parseInt(req.query.limit) || 10;
+    const skip = (page - 1) * limit;
+
+    // Build query for archived permits only
+    let query = { isArchived: true };
+
+    // Text search
+    if (req.query.search) {
+      query.$or = [
+        { permit: { $regex: req.query.search, $options: "i" } },
+        { documentNo: { $regex: req.query.search, $options: "i" } },
+        { issuingAuthority: { $regex: req.query.search, $options: "i" } },
+      ];
+    }
+
+    // Sorting
+    let sortBy = {};
+    if (req.query.sortBy) {
+      const order = req.query.sortOrder === "desc" ? -1 : 1;
+      sortBy[req.query.sortBy] = order;
+    } else {
+      sortBy = { archivedAt: -1 }; // Most recently archived first
+    }
+
+    // Execute query
+    const legalRegisters = await LegalRegister.find(query)
+      .populate("createdBy", "name email")
+      .populate("updatedBy", "name email")
+      .sort(sortBy)
+      .limit(limit)
+      .skip(skip);
+
+    // Get total count
+    const total = await LegalRegister.countDocuments(query);
+
+    res.json({
+      success: true,
+      count: legalRegisters.length,
+      total: total,
+      page: page,
+      pages: Math.ceil(total / limit),
+      data: legalRegisters,
     });
   } catch (error) {
     res.status(500).json({
