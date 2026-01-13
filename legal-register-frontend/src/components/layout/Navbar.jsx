@@ -25,7 +25,7 @@ const Navbar = ({ toggleSidebar }) => {
               <FiMenu className="h-6 w-6" />
             </button>
             <h1 className="text-xl font-semibold text-gray-900">
-              Legal Register Management
+              {user?.companyName || 'Legal Register Management'}
             </h1>
           </div>
 

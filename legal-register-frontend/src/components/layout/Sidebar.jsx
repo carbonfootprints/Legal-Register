@@ -1,10 +1,11 @@
 import { NavLink } from 'react-router-dom';
-import { FiHome, FiFileText, FiX } from 'react-icons/fi';
+import { FiHome, FiFileText, FiArchive, FiX } from 'react-icons/fi';
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const navLinks = [
-    { to: '/dashboard', icon: FiHome, label: 'Dashboard' },
+    { to: '/dashboard', icon: FiHome, label: 'Dashboard of legal registers' },
     { to: '/legal-registers', icon: FiFileText, label: 'Legal Registers' },
+    { to: '/archived-permits', icon: FiArchive, label: 'Archived Permits' },
   ];
 
   return (

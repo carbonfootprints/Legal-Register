@@ -16,16 +16,17 @@ const LegalRegisterList = () => {
   const [searchTerm, setSearchTerm] = useState('');
   const [formData, setFormData] = useState({
     permit: '',
-    authorizationNo: '',
+    documentNo: '',
     issuingAuthority: '',
-    dateOfApplication: '',
     dateOfIssue: '',
     dateOfExpiry: '',
     dueDateForRenewal: '',
     reportingFrequency: 'N/A',
     dateOfLastReport: '',
     responsibility: '',
-    status: 'Active'
+    status: 'Active',
+    permitDocument: '',
+    complianceReport: ''
   });
 
   useEffect(() => {
@@ -65,31 +66,33 @@ const LegalRegisterList = () => {
       setEditingItem(item);
       setFormData({
         permit: item.permit,
-        authorizationNo: item.authorizationNo,
+        documentNo: item.documentNo,
         issuingAuthority: item.issuingAuthority,
-        dateOfApplication: formatDateForInput(item.dateOfApplication),
         dateOfIssue: formatDateForInput(item.dateOfIssue),
         dateOfExpiry: formatDateForInput(item.dateOfExpiry),
         dueDateForRenewal: formatDateForInput(item.dueDateForRenewal),
         reportingFrequency: item.reportingFrequency || 'N/A',
         dateOfLastReport: formatDateForInput(item.dateOfLastReport),
         responsibility: item.responsibility,
-        status: item.status
+        status: item.status,
+        permitDocument: item.permitDocument || '',
+        complianceReport: item.complianceReport || ''
       });
     } else {
       setEditingItem(null);
       setFormData({
         permit: '',
-        authorizationNo: '',
+        documentNo: '',
         issuingAuthority: '',
-        dateOfApplication: '',
         dateOfIssue: '',
         dateOfExpiry: '',
         dueDateForRenewal: '',
         reportingFrequency: 'N/A',
         dateOfLastReport: '',
         responsibility: '',
-        status: 'Active'
+        status: 'Active',
+        permitDocument: '',
+        complianceReport: ''
       });
     }
     setIsModalOpen(true);
@@ -188,7 +191,7 @@ const LegalRegisterList = () => {
       <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
         <input
           type="text"
-          placeholder="Search by permit, auth no., or issuing authority..."
+          placeholder="Search by permit, document no., or issuing authority..."
           className="border border-gray-300 rounded-md px-4 py-2 w-96"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
@@ -226,7 +229,7 @@ const LegalRegisterList = () => {
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">SL No.</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Permit</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Auth No.</th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Document No.</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Issuing Authority</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Due Date</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Days Left</th>
@@ -242,7 +245,7 @@ const LegalRegisterList = () => {
                     <tr key={register._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{register.slNo}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{register.permit}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{register.authorizationNo}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{register.documentNo}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{register.issuingAuthority}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(register.dueDateForRenewal)}</td>
                       <td className="px-6 py-4 whitespace-nowrap">
@@ -294,13 +297,13 @@ const LegalRegisterList = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700">Authorization No. *</label>
+              <label className="block text-sm font-medium text-gray-700">Document No. *</label>
               <input
                 type="text"
                 required
                 className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
-                value={formData.authorizationNo}
-                onChange={(e) => setFormData({ ...formData, authorizationNo: e.target.value })}
+                value={formData.documentNo}
+                onChange={(e) => setFormData({ ...formData, documentNo: e.target.value })}
               />
             </div>
 
@@ -327,17 +330,6 @@ const LegalRegisterList = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Application *</label>
-              <input
-                type="date"
-                required
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.dateOfApplication}
-                onChange={(e) => setFormData({ ...formData, dateOfApplication: e.target.value })}
-              />
-            </div>
-
-            <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Date of Issue *</label>
               <input
                 type="date"
@@ -346,6 +338,20 @@ const LegalRegisterList = () => {
                 value={formData.dateOfIssue}
                 onChange={(e) => setFormData({ ...formData, dateOfIssue: e.target.value })}
               />
+            </div>
+
+            <div>
+              <label className="block text-sm font-medium text-gray-700">Status</label>
+              <select
+                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
+                value={formData.status}
+                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
+              >
+                <option value="Active">Active</option>
+                <option value="Expired">Expired</option>
+                <option value="Pending Renewal">Pending Renewal</option>
+                <option value="Cancelled">Cancelled</option>
+              </select>
             </div>
 
             <div>
@@ -397,18 +403,26 @@ const LegalRegisterList = () => {
               />
             </div>
 
-            <div>
-              <label className="block text-sm font-medium text-gray-700">Status</label>
-              <select
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
-                value={formData.status}
-                onChange={(e) => setFormData({ ...formData, status: e.target.value })}
-              >
-                <option value="Active">Active</option>
-                <option value="Expired">Expired</option>
-                <option value="Pending Renewal">Pending Renewal</option>
-                <option value="Cancelled">Cancelled</option>
-              </select>
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Permit Document (Scanned Copy URL)</label>
+              <input
+                type="text"
+                placeholder="Enter URL of scanned permit document"
+                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.permitDocument}
+                onChange={(e) => setFormData({ ...formData, permitDocument: e.target.value })}
+              />
+            </div>
+
+            <div className="col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-1">Compliance Report (URL)</label>
+              <input
+                type="text"
+                placeholder="Enter URL of compliance report"
+                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                value={formData.complianceReport}
+                onChange={(e) => setFormData({ ...formData, complianceReport: e.target.value })}
+              />
             </div>
           </div>
 

@@ -43,6 +43,13 @@ const legalRegisterService = {
     const response = await api.get('/legal-registers/stats/summary');
     return response.data;
   },
+
+  // Get archived legal registers
+  getArchived: async (params = {}) => {
+    const queryString = new URLSearchParams(params).toString();
+    const response = await api.get(`/legal-registers/archived?${queryString}`);
+    return response.data;
+  },
 };
 
 export default legalRegisterService;

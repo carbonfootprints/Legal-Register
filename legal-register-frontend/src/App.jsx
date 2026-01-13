@@ -9,6 +9,7 @@ import Navbar from './components/layout/Navbar';
 import Sidebar from './components/layout/Sidebar';
 import Dashboard from './components/dashboard/Dashboard';
 import LegalRegisterList from './components/legalRegister/LegalRegisterList';
+import ArchivedPermits from './components/legalRegister/ArchivedPermits';
 
 function App() {
   const [sidebarOpen, setSidebarOpen] = useState(false);
@@ -38,6 +39,7 @@ function App() {
                       <Routes>
                         <Route path="/dashboard" element={<Dashboard />} />
                         <Route path="/legal-registers" element={<LegalRegisterList />} />
+                        <Route path="/archived-permits" element={<ArchivedPermits />} />
                         <Route path="/" element={<Navigate to="/dashboard" replace />} />
                       </Routes>
                     </main>

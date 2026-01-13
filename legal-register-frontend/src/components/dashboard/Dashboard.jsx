@@ -137,7 +137,7 @@ const Dashboard = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="font-medium text-gray-900">{item.permit}</p>
-                      <p className="text-sm text-gray-600">Auth No: {item.authorizationNo}</p>
+                      <p className="text-sm text-gray-600">Document No: {item.documentNo}</p>
                     </div>
                     <span className="text-xs bg-red-200 text-red-800 px-2 py-1 rounded">
                       {formatDate(item.dueDateForRenewal)}
@@ -164,7 +164,7 @@ const Dashboard = () => {
                   <div className="flex justify-between items-start">
                     <div>
                       <p className="font-medium text-gray-900">{item.permit}</p>
-                      <p className="text-sm text-gray-600">Auth No: {item.authorizationNo}</p>
+                      <p className="text-sm text-gray-600">Document No: {item.documentNo}</p>
                     </div>
                     <span className="text-xs bg-orange-200 text-orange-800 px-2 py-1 rounded">
                       {formatDate(item.dueDateForRenewal)}
@@ -193,7 +193,7 @@ const Dashboard = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-medium text-gray-900">{item.permit}</p>
-                        <p className="text-sm text-gray-600">Auth No: {item.authorizationNo}</p>
+                        <p className="text-sm text-gray-600">Document No: {item.documentNo}</p>
                       </div>
                       <div className="text-right">
                         <span className="text-xs bg-yellow-200 text-yellow-800 px-2 py-1 rounded block mb-1">
@@ -226,7 +226,7 @@ const Dashboard = () => {
                     <div className="flex justify-between items-start">
                       <div>
                         <p className="font-medium text-gray-900">{item.permit}</p>
-                        <p className="text-sm text-gray-600">Auth No: {item.authorizationNo}</p>
+                        <p className="text-sm text-gray-600">Document No: {item.documentNo}</p>
                       </div>
                       <div className="text-right">
                         <span className="text-xs bg-gray-200 text-gray-800 px-2 py-1 rounded block mb-1">
