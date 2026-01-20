@@ -31,8 +31,11 @@ export const getAllLegalRegisters = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Build query - exclude archived by default
-    let query = { isArchived: false };
+    // Build query - exclude archived by default and filter by user
+    let query = {
+      isArchived: false,
+      createdBy: req.user._id
+    };
 
     // Text search (permit name or document number)
     if (req.query.search) {
@@ -105,7 +108,10 @@ export const getAllLegalRegisters = async (req, res) => {
 // @access  Private
 export const getLegalRegisterById = async (req, res) => {
   try {
-    const legalRegister = await LegalRegister.findById(req.params.id)
+    const legalRegister = await LegalRegister.findOne({
+      _id: req.params.id,
+      createdBy: req.user._id
+    })
       .populate("createdBy", "name email")
       .populate("updatedBy", "name email");
 
@@ -133,7 +139,10 @@ export const getLegalRegisterById = async (req, res) => {
 // @access  Private
 export const updateLegalRegister = async (req, res) => {
   try {
-    let legalRegister = await LegalRegister.findById(req.params.id);
+    let legalRegister = await LegalRegister.findOne({
+      _id: req.params.id,
+      createdBy: req.user._id
+    });
 
     if (!legalRegister) {
       return res.status(404).json({
@@ -173,7 +182,10 @@ export const updateLegalRegister = async (req, res) => {
 // @access  Private
 export const deleteLegalRegister = async (req, res) => {
   try {
-    const legalRegister = await LegalRegister.findById(req.params.id);
+    const legalRegister = await LegalRegister.findOne({
+      _id: req.params.id,
+      createdBy: req.user._id
+    });
 
     if (!legalRegister) {
       return res.status(404).json({
@@ -207,8 +219,9 @@ export const getExpiryAlerts = async (req, res) => {
     const thirtyDaysLater = new Date(today);
     thirtyDaysLater.setDate(today.getDate() + 30);
 
-    // Get entries expiring in next 30 days or already expired
+    // Get entries expiring in next 30 days or already expired (for this user only)
     const alerts = await LegalRegister.find({
+      createdBy: req.user._id,
       dueDateForRenewal: { $lte: thirtyDaysLater },
       status: { $in: ["Active", "Pending Renewal"] },
     })
@@ -260,11 +273,12 @@ export const getStatistics = async (req, res) => {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
 
-    // Total counts
-    const total = await LegalRegister.countDocuments();
-    const active = await LegalRegister.countDocuments({ status: "Active" });
-    const expired = await LegalRegister.countDocuments({ status: "Expired" });
+    // Total counts (for this user only)
+    const total = await LegalRegister.countDocuments({ createdBy: req.user._id });
+    const active = await LegalRegister.countDocuments({ createdBy: req.user._id, status: "Active" });
+    const expired = await LegalRegister.countDocuments({ createdBy: req.user._id, status: "Expired" });
     const pendingRenewal = await LegalRegister.countDocuments({
+      createdBy: req.user._id,
       status: "Pending Renewal",
     });
 
@@ -273,6 +287,7 @@ export const getStatistics = async (req, res) => {
     sevenDaysLater.setDate(today.getDate() + 7);
 
     const expiringSoon = await LegalRegister.countDocuments({
+      createdBy: req.user._id,
       dueDateForRenewal: {
         $gte: today,
         $lte: sevenDaysLater,
@@ -282,6 +297,7 @@ export const getStatistics = async (req, res) => {
 
     // Already past due date
     const overdue = await LegalRegister.countDocuments({
+      createdBy: req.user._id,
       dueDateForRenewal: { $lt: today },
       status: { $in: ["Active", "Pending Renewal"] },
     });
@@ -314,8 +330,11 @@ export const getArchivedLegalRegisters = async (req, res) => {
     const limit = parseInt(req.query.limit) || 10;
     const skip = (page - 1) * limit;
 
-    // Build query for archived permits only
-    let query = { isArchived: true };
+    // Build query for archived permits only (for this user)
+    let query = {
+      isArchived: true,
+      createdBy: req.user._id
+    };
 
     // Text search
     if (req.query.search) {

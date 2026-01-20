@@ -7,13 +7,13 @@ import PDFExport from '../utils/pdfExport.js';
 // @access  Private
 export const exportToExcel = async (req, res) => {
   try {
-    // Build query based on filters (same as getAllLegalRegisters)
-    let query = {};
+    // Build query based on filters (same as getAllLegalRegisters) - filter by user
+    let query = { createdBy: req.user._id };
 
     if (req.query.search) {
       query.$or = [
         { permit: { $regex: req.query.search, $options: 'i' } },
-        { authorizationNo: { $regex: req.query.search, $options: 'i' } }
+        { documentNo: { $regex: req.query.search, $options: 'i' } }
       ];
     }
 
@@ -62,13 +62,13 @@ export const exportToExcel = async (req, res) => {
 // @access  Private
 export const exportToPDF = async (req, res) => {
   try {
-    // Build query based on filters
-    let query = {};
+    // Build query based on filters - filter by user
+    let query = { createdBy: req.user._id };
 
     if (req.query.search) {
       query.$or = [
         { permit: { $regex: req.query.search, $options: 'i' } },
-        { authorizationNo: { $regex: req.query.search, $options: 'i' } }
+        { documentNo: { $regex: req.query.search, $options: 'i' } }
       ];
     }
 
