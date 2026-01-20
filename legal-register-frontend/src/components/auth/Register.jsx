@@ -11,10 +11,11 @@ const Register = () => {
     email: '',
     password: '',
     confirmPassword: '',
+    companyName: '',
   });
   const [loading, setLoading] = useState(false);
 
-  const { name, email, password, confirmPassword } = formData;
+  const { name, email, password, confirmPassword, companyName } = formData;
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -23,7 +24,7 @@ const Register = () => {
   const onSubmit = async (e) => {
     e.preventDefault();
 
-    if (!name || !email || !password || !confirmPassword) {
+    if (!name || !email || !password || !confirmPassword || !companyName) {
       toast.error('Please fill in all fields');
       return;
     }
@@ -41,7 +42,7 @@ const Register = () => {
     setLoading(true);
 
     try {
-      await register({ name, email, password });
+      await register({ name, email, password, companyName });
       toast.success('Registration successful!');
       navigate('/dashboard');
     } catch (error) {
@@ -102,6 +103,22 @@ const Register = () => {
                   className="appearance-none block w-full px-4 py-3 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
                   placeholder="your.email@example.com"
                   value={email}
+                  onChange={onChange}
+                />
+              </div>
+
+              <div>
+                <label htmlFor="companyName" className="block text-sm font-semibold text-gray-700 mb-2">
+                  🏢 Company Name
+                </label>
+                <input
+                  id="companyName"
+                  name="companyName"
+                  type="text"
+                  required
+                  className="appearance-none block w-full px-4 py-3 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
+                  placeholder="Your Company Name"
+                  value={companyName}
                   onChange={onChange}
                 />
               </div>
