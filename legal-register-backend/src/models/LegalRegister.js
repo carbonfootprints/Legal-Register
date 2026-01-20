@@ -78,11 +78,15 @@ const legalRegisterSchema = new mongoose.Schema({
   toObject: { virtuals: true }
 });
 
-// Manual auto-increment for slNo
+// Manual auto-increment for slNo (per user)
 legalRegisterSchema.pre('save', async function(next) {
   if (this.isNew && !this.slNo) {
     try {
-      const lastRecord = await this.constructor.findOne({}, { slNo: 1 }).sort({ slNo: -1 }).lean();
+      // Find last record for THIS user only
+      const lastRecord = await this.constructor.findOne(
+        { createdBy: this.createdBy },
+        { slNo: 1 }
+      ).sort({ slNo: -1 }).lean();
       this.slNo = lastRecord ? lastRecord.slNo + 1 : 1;
     } catch (error) {
       return next(error);
