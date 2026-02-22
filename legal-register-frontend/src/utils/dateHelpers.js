@@ -1,4 +1,5 @@
 import { format, parseISO, differenceInDays, isValid } from 'date-fns';
+import logger from './logger';
 
 export const formatDate = (date, formatStr = 'dd/MM/yyyy') => {
   if (!date) return 'N/A';
@@ -6,7 +7,7 @@ export const formatDate = (date, formatStr = 'dd/MM/yyyy') => {
     const dateObj = typeof date === 'string' ? parseISO(date) : date;
     return isValid(dateObj) ? format(dateObj, formatStr) : 'N/A';
   } catch (error) {
-    console.error('Date formatting error:', error);
+    logger.error('Date formatting error:', error);
     return 'Invalid Date';
   }
 };
@@ -24,7 +25,7 @@ export const getDaysUntilRenewal = (renewalDate) => {
     renewal.setHours(0, 0, 0, 0);
     return differenceInDays(renewal, today);
   } catch (error) {
-    console.error('Error calculating days until renewal:', error);
+    logger.error('Error calculating days until renewal:', error);
     return null;
   }
 };
@@ -63,7 +64,7 @@ export const parseInputDate = (dateString) => {
   try {
     return new Date(dateString);
   } catch (error) {
-    console.error('Error parsing date:', error);
+    logger.error('Error parsing date:', error);
     return null;
   }
 };
@@ -74,7 +75,7 @@ export const toISODate = (date) => {
     const dateObj = typeof date === 'string' ? new Date(date) : date;
     return dateObj.toISOString();
   } catch (error) {
-    console.error('Error converting to ISO date:', error);
+    logger.error('Error converting to ISO date:', error);
     return '';
   }
 };

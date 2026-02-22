@@ -5,6 +5,7 @@ import uploadService from '../../services/uploadService';
 import Loader from '../common/Loader';
 import Modal from '../common/Modal';
 import { formatDate, getStatusBadgeClass, getDaysUntilRenewal, getRenewalUrgencyBadge } from '../../utils/dateHelpers';
+import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
 import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiFileText, FiUpload, FiX } from 'react-icons/fi';
 
@@ -49,7 +50,7 @@ const LegalRegisterList = () => {
         setRegisters(response.data);
       }
     } catch (error) {
-      console.error('Error fetching registers:', error);
+      logger.error('Error fetching registers:', error);
       toast.error('Failed to load legal registers');
     } finally {
       setLoading(false);
@@ -115,7 +116,7 @@ const LegalRegisterList = () => {
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    console.log('Form submitted with data:', formData);
+    logger.log('Form submitted with data:', formData);
     setSubmitting(true);
 
     try {
@@ -142,29 +143,29 @@ const LegalRegisterList = () => {
             submitData.complianceReport = uploadResponse.data.complianceReport;
           }
         } catch (uploadError) {
-          console.error('Error uploading files:', uploadError);
+          logger.error('Error uploading files:', uploadError);
           toast.error('Failed to upload files');
           setSubmitting(false);
           return;
         }
       }
 
-      console.log('Submitting data to backend:', submitData);
+      logger.log('Submitting data to backend:', submitData);
 
       if (editingItem) {
         const response = await legalRegisterService.update(editingItem._id, submitData);
-        console.log('Update response:', response);
+        logger.log('Update response:', response);
         toast.success('Legal register updated successfully');
       } else {
         const response = await legalRegisterService.create(submitData);
-        console.log('Create response:', response);
+        logger.log('Create response:', response);
         toast.success('Legal register created successfully');
       }
       handleCloseModal();
       fetchRegisters();
     } catch (error) {
-      console.error('Error saving register:', error);
-      console.error('Error details:', error.response?.data);
+      logger.error('Error saving register:', error);
+      logger.error('Error details:', error.response?.data);
       toast.error(error.response?.data?.message || 'Failed to save legal register');
     } finally {
       setSubmitting(false);
@@ -178,7 +179,7 @@ const LegalRegisterList = () => {
         toast.success('Legal register deleted successfully');
         fetchRegisters();
       } catch (error) {
-        console.error('Error deleting register:', error);
+        logger.error('Error deleting register:', error);
         toast.error('Failed to delete legal register');
       }
     }
@@ -189,7 +190,7 @@ const LegalRegisterList = () => {
       await exportService.exportToExcel({ search: searchTerm });
       toast.success('Excel file downloaded successfully');
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
+      logger.error('Error exporting to Excel:', error);
       toast.error('Failed to export to Excel');
     }
   };
@@ -199,7 +200,7 @@ const LegalRegisterList = () => {
       await exportService.exportToPDF({ search: searchTerm });
       toast.success('PDF file downloaded successfully');
     } catch (error) {
-      console.error('Error exporting to PDF:', error);
+      logger.error('Error exporting to PDF:', error);
       toast.error('Failed to export to PDF');
     }
   };

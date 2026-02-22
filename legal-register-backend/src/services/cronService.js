@@ -2,6 +2,7 @@ import cron from 'node-cron';
 import LegalRegister from '../models/LegalRegister.js';
 import EmailLog from '../models/EmailLog.js';
 import EmailService from './emailService.js';
+import logger from '../utils/logger.js';
 
 class CronService {
   // Run daily at 9:00 AM
@@ -9,15 +10,15 @@ class CronService {
     // Schedule: minute hour day month day-of-week
     // '0 9 * * *' = Every day at 9:00 AM
     cron.schedule('0 9 * * *', async () => {
-      console.log('=====================================');
-      console.log('Running renewal notification check...');
-      console.log('Time:', new Date().toLocaleString());
-      console.log('=====================================');
+      logger.log('=====================================');
+      logger.log('Running renewal notification check...');
+      logger.log('Time:', new Date().toLocaleString());
+      logger.log('=====================================');
 
       await this.checkAndSendReminders();
     });
 
-    console.log('✓ Cron job scheduled: Daily at 9:00 AM for renewal notifications');
+    logger.log('✓ Cron job scheduled: Daily at 9:00 AM for renewal notifications');
   }
 
   static async checkAndSendReminders() {
@@ -34,11 +35,11 @@ class CronService {
       const yesterday = new Date(today);
       yesterday.setDate(today.getDate() - 1);
 
-      console.log('Checking for renewals:');
-      console.log('- Yesterday (overdue check):', yesterday.toDateString());
-      console.log('- Today:', today.toDateString());
-      console.log('- Two days later:', twoDaysLater.toDateString());
-      console.log('- Seven days later:', sevenDaysLater.toDateString());
+      logger.log('Checking for renewals:');
+      logger.log('- Yesterday (overdue check):', yesterday.toDateString());
+      logger.log('- Today:', today.toDateString());
+      logger.log('- Two days later:', twoDaysLater.toDateString());
+      logger.log('- Seven days later:', sevenDaysLater.toDateString());
 
       // Find all active legal registers
       const registers = await LegalRegister.find({
@@ -46,7 +47,7 @@ class CronService {
         dueDateForRenewal: { $exists: true, $ne: null }
       }).populate('createdBy', 'email name');
 
-      console.log(`Found ${registers.length} active legal registers to check`);
+      logger.log(`Found ${registers.length} active legal registers to check`);
 
       let sevenDayCount = 0;
       let twoDayCount = 0;
@@ -57,53 +58,53 @@ class CronService {
         const dueDate = new Date(register.dueDateForRenewal);
         dueDate.setHours(0, 0, 0, 0);
 
-        console.log(`Checking: ${register.permit} (${register.documentNo})`);
-        console.log(`  Due Date: ${dueDate.toDateString()}`);
-        console.log(`  Yesterday: ${yesterday.toDateString()}`);
-        console.log(`  Today: ${today.toDateString()}`);
-        console.log(`  Two Days Later: ${twoDaysLater.toDateString()}`);
-        console.log(`  Seven Days Later: ${sevenDaysLater.toDateString()}`);
-        console.log(`  Matches 7 days? ${dueDate.getTime() === sevenDaysLater.getTime()}`);
-        console.log(`  Matches 2 days? ${dueDate.getTime() === twoDaysLater.getTime()}`);
-        console.log(`  Matches today? ${dueDate.getTime() === today.getTime()}`);
-        console.log(`  Matches overdue? ${dueDate.getTime() === yesterday.getTime()}`);
+        logger.log(`Checking: ${register.permit} (${register.documentNo})`);
+        logger.log(`  Due Date: ${dueDate.toDateString()}`);
+        logger.log(`  Yesterday: ${yesterday.toDateString()}`);
+        logger.log(`  Today: ${today.toDateString()}`);
+        logger.log(`  Two Days Later: ${twoDaysLater.toDateString()}`);
+        logger.log(`  Seven Days Later: ${sevenDaysLater.toDateString()}`);
+        logger.log(`  Matches 7 days? ${dueDate.getTime() === sevenDaysLater.getTime()}`);
+        logger.log(`  Matches 2 days? ${dueDate.getTime() === twoDaysLater.getTime()}`);
+        logger.log(`  Matches today? ${dueDate.getTime() === today.getTime()}`);
+        logger.log(`  Matches overdue? ${dueDate.getTime() === yesterday.getTime()}`);
 
         // Check for 7-day reminder
         if (dueDate.getTime() === sevenDaysLater.getTime()) {
-          console.log(`  → Sending 7-day reminder...`);
+          logger.log(`  → Sending 7-day reminder...`);
           const sent = await this.sendReminderEmail(register, 'seven_day_reminder');
           if (sent) sevenDayCount++;
         }
 
         // Check for 2-day reminder
         if (dueDate.getTime() === twoDaysLater.getTime()) {
-          console.log(`  → Sending 2-day reminder...`);
+          logger.log(`  → Sending 2-day reminder...`);
           const sent = await this.sendReminderEmail(register, 'two_day_reminder');
           if (sent) twoDayCount++;
         }
 
         // Check for due date reminder
         if (dueDate.getTime() === today.getTime()) {
-          console.log(`  → Sending due today reminder...`);
+          logger.log(`  → Sending due today reminder...`);
           const sent = await this.sendReminderEmail(register, 'due_date_reminder');
           if (sent) dueTodayCount++;
         }
 
         // Check for overdue reminder (1 day past due)
         if (dueDate.getTime() === yesterday.getTime()) {
-          console.log(`  → Sending overdue reminder...`);
+          logger.log(`  → Sending overdue reminder...`);
           const sent = await this.sendReminderEmail(register, 'overdue_reminder');
           if (sent) overdueCount++;
         }
       }
 
-      console.log('=====================================');
-      console.log('Renewal notification check completed');
-      console.log(`- 7-day reminders sent: ${sevenDayCount}`);
-      console.log(`- 2-day reminders sent: ${twoDayCount}`);
-      console.log(`- Due today reminders sent: ${dueTodayCount}`);
-      console.log(`- Overdue reminders sent: ${overdueCount}`);
-      console.log('=====================================');
+      logger.log('=====================================');
+      logger.log('Renewal notification check completed');
+      logger.log(`- 7-day reminders sent: ${sevenDayCount}`);
+      logger.log(`- 2-day reminders sent: ${twoDayCount}`);
+      logger.log(`- Due today reminders sent: ${dueTodayCount}`);
+      logger.log(`- Overdue reminders sent: ${overdueCount}`);
+      logger.log('=====================================');
 
       return {
         success: true,
@@ -113,7 +114,7 @@ class CronService {
         overdueReminders: overdueCount
       };
     } catch (error) {
-      console.error('Error in renewal notification job:', error);
+      logger.error('Error in renewal notification job:', error);
       return {
         success: false,
         error: error.message
@@ -132,13 +133,13 @@ class CronService {
       });
 
       if (existingLog) {
-        console.log(`✓ Email already sent: ${emailType} for ${register.documentNo} (${register.permit})`);
+        logger.log(`✓ Email already sent: ${emailType} for ${register.documentNo} (${register.permit})`);
         return false;
       }
 
       // Check if user has email
       if (!register.createdBy || !register.createdBy.email) {
-        console.log(`✗ No email found for register: ${register.documentNo}`);
+        logger.log(`✗ No email found for register: ${register.documentNo}`);
         return false;
       }
 
@@ -176,10 +177,10 @@ class CronService {
         dueDateForRenewal: register.dueDateForRenewal
       });
 
-      console.log(`✓ Sent ${emailType} for ${register.documentNo} (${register.permit}) to ${recipientEmail}`);
+      logger.log(`✓ Sent ${emailType} for ${register.documentNo} (${register.permit}) to ${recipientEmail}`);
       return true;
     } catch (error) {
-      console.error(`✗ Failed to send ${emailType} for ${register.documentNo}:`, error.message);
+      logger.error(`✗ Failed to send ${emailType} for ${register.documentNo}:`, error.message);
 
       // Log failure
       try {
@@ -192,7 +193,7 @@ class CronService {
           dueDateForRenewal: register.dueDateForRenewal
         });
       } catch (logError) {
-        console.error('Failed to log email error:', logError.message);
+        logger.error('Failed to log email error:', logError.message);
       }
 
       return false;
@@ -201,7 +202,7 @@ class CronService {
 
   // Manual trigger for testing (can be called via API endpoint)
   static async triggerManualCheck() {
-    console.log('Manual renewal notification check triggered');
+    logger.log('Manual renewal notification check triggered');
     return await this.checkAndSendReminders();
   }
 }

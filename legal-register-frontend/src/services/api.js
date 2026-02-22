@@ -1,8 +1,9 @@
 import axios from 'axios';
+import logger from '../utils/logger';
 
 const API_URL = import.meta.env.VITE_API_URL || 'http://localhost:5000/api';
 
-console.log('API Base URL:', API_URL);
+logger.log('API Base URL:', API_URL);
 
 // Create axios instance
 const api = axios.create({
@@ -16,8 +17,8 @@ const api = axios.create({
 // Request interceptor to add JWT token
 api.interceptors.request.use(
   (config) => {
-    console.log('Making request to:', config.baseURL + config.url);
-    console.log('Request data:', config.data);
+    logger.log('Making request to:', config.baseURL + config.url);
+    logger.log('Request data:', config.data);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -25,7 +26,7 @@ api.interceptors.request.use(
     return config;
   },
   (error) => {
-    console.error('Request interceptor error:', error);
+    logger.error('Request interceptor error:', error);
     return Promise.reject(error);
   }
 );
@@ -33,14 +34,14 @@ api.interceptors.request.use(
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    console.log('Response received:', response.status, response.data);
+    logger.log('Response received:', response.status, response.data);
     return response;
   },
   (error) => {
-    console.error('Response error:', error);
+    logger.error('Response error:', error);
     if (error.response) {
       // Server responded with error status
-      console.error('Error response:', error.response.status, error.response.data);
+      logger.error('Error response:', error.response.status, error.response.data);
       if (error.response.status === 401) {
         // Unauthorized - clear token and redirect to login
         localStorage.removeItem('token');
@@ -49,12 +50,12 @@ api.interceptors.response.use(
       }
     } else if (error.request) {
       // Request made but no response
-      console.error('No response received:', error.request);
-      console.error('Error code:', error.code);
-      console.error('Error message:', error.message);
+      logger.error('No response received:', error.request);
+      logger.error('Error code:', error.code);
+      logger.error('Error message:', error.message);
     } else {
       // Error in request configuration
-      console.error('Error:', error.message);
+      logger.error('Error:', error.message);
     }
     return Promise.reject(error);
   }

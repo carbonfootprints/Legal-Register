@@ -2,6 +2,7 @@ import { useState, useEffect } from 'react';
 import legalRegisterService from '../../services/legalRegisterService';
 import Loader from '../common/Loader';
 import { getDaysUntilRenewal, getRenewalUrgencyBadge, formatDate } from '../../utils/dateHelpers';
+import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
 
 const Dashboard = () => {
@@ -28,7 +29,7 @@ const Dashboard = () => {
         setAlerts(alertsResponse.data);
       }
     } catch (error) {
-      console.error('Error fetching dashboard data:', error);
+      logger.error('Error fetching dashboard data:', error);
       toast.error('Failed to load dashboard data');
     } finally {
       setLoading(false);

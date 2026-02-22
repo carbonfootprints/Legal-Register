@@ -3,6 +3,7 @@ import legalRegisterService from '../../services/legalRegisterService';
 import exportService from '../../services/exportService';
 import Loader from '../common/Loader';
 import { formatDate, getStatusBadgeClass } from '../../utils/dateHelpers';
+import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
 import { FiDownload, FiFileText, FiArchive } from 'react-icons/fi';
 
@@ -26,7 +27,7 @@ const ArchivedPermits = () => {
         setRegisters(response.data);
       }
     } catch (error) {
-      console.error('Error fetching archived registers:', error);
+      logger.error('Error fetching archived registers:', error);
       toast.error('Failed to load archived permits');
     } finally {
       setLoading(false);
@@ -38,7 +39,7 @@ const ArchivedPermits = () => {
       await exportService.exportToExcel({ search: searchTerm, archived: true });
       toast.success('Excel file downloaded successfully');
     } catch (error) {
-      console.error('Error exporting to Excel:', error);
+      logger.error('Error exporting to Excel:', error);
       toast.error('Failed to export to Excel');
     }
   };
@@ -48,7 +49,7 @@ const ArchivedPermits = () => {
       await exportService.exportToPDF({ search: searchTerm, archived: true });
       toast.success('PDF file downloaded successfully');
     } catch (error) {
-      console.error('Error exporting to PDF:', error);
+      logger.error('Error exporting to PDF:', error);
       toast.error('Failed to export to PDF');
     }
   };

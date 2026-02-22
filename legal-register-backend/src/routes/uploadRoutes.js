@@ -1,6 +1,7 @@
 import express from 'express';
 import upload from '../middleware/upload.js';
 import { protect } from '../middleware/auth.js';
+import { uploadLimiter } from '../middleware/rateLimiter.js';
 import path from 'path';
 import fs from 'fs';
 import { fileURLToPath } from 'url';
@@ -13,8 +14,8 @@ const router = express.Router();
 // Apply authentication middleware
 router.use(protect);
 
-// Upload single file
-router.post('/single', upload.single('file'), (req, res) => {
+// Upload single file (with rate limiting)
+router.post('/single', uploadLimiter, upload.single('file'), (req, res) => {
   try {
     if (!req.file) {
       return res.status(400).json({
@@ -46,7 +47,7 @@ router.post('/single', upload.single('file'), (req, res) => {
 });
 
 // Upload multiple files (for permit document and compliance report)
-router.post('/documents', upload.fields([
+router.post('/documents', uploadLimiter, upload.fields([
   { name: 'permitDocument', maxCount: 1 },
   { name: 'complianceReport', maxCount: 1 }
 ]), (req, res) => {

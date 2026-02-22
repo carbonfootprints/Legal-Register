@@ -2,6 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { FiEye, FiEyeOff } from 'react-icons/fi';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -11,6 +12,7 @@ const Login = () => {
     password: '',
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
 
   const { email, password } = formData;
 
@@ -82,17 +84,26 @@ const Login = () => {
                 <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                   🔑 Password
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  autoComplete="current-password"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
-                  placeholder="Enter your password"
-                  value={password}
-                  onChange={onChange}
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    autoComplete="current-password"
+                    required
+                    className="appearance-none block w-full px-4 py-3 pr-12 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
+                    placeholder="Enter your password"
+                    value={password}
+                    onChange={onChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
               </div>
 
               <button
@@ -116,7 +127,12 @@ const Login = () => {
                 )}
               </button>
 
-              <div className="text-center pt-4">
+              <div className="text-center pt-4 space-y-2">
+                <p className="text-sm text-gray-600">
+                  <Link to="/forgot-password" className="font-semibold text-green-600 hover:text-green-700 transition-colors">
+                    Forgot your password?
+                  </Link>
+                </p>
                 <p className="text-sm text-gray-600">
                   Don't have an account?{' '}
                   <Link to="/register" className="font-semibold text-green-600 hover:text-green-700 transition-colors">

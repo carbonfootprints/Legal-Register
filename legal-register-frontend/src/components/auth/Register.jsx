@@ -1,7 +1,9 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
+import { FiEye, FiEyeOff, FiCheck, FiX } from 'react-icons/fi';
+import { validatePassword, getPasswordStrength, getStrengthInfo } from '../../utils/passwordValidation';
 
 const Register = () => {
   const navigate = useNavigate();
@@ -14,8 +16,15 @@ const Register = () => {
     companyName: '',
   });
   const [loading, setLoading] = useState(false);
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
   const { name, email, password, confirmPassword, companyName } = formData;
+
+  // Password validation
+  const passwordValidation = useMemo(() => validatePassword(password), [password]);
+  const passwordStrength = useMemo(() => getPasswordStrength(password), [password]);
+  const strengthInfo = useMemo(() => getStrengthInfo(passwordStrength), [passwordStrength]);
 
   const onChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -29,13 +38,13 @@ const Register = () => {
       return;
     }
 
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match');
+    if (!passwordValidation.isValid) {
+      toast.error('Please meet all password requirements');
       return;
     }
 
-    if (password.length < 6) {
-      toast.error('Password must be at least 6 characters');
+    if (password !== confirmPassword) {
+      toast.error('Passwords do not match');
       return;
     }
 
@@ -127,32 +136,91 @@ const Register = () => {
                 <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
                   🔒 Password
                 </label>
-                <input
-                  id="password"
-                  name="password"
-                  type="password"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
-                  placeholder="Min. 6 characters"
-                  value={password}
-                  onChange={onChange}
-                />
+                <div className="relative">
+                  <input
+                    id="password"
+                    name="password"
+                    type={showPassword ? 'text' : 'password'}
+                    required
+                    className="appearance-none block w-full px-4 py-3 pr-12 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
+                    placeholder="Min. 8 characters"
+                    value={password}
+                    onChange={onChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowPassword(!showPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
+
+                {/* Password Strength Indicator */}
+                {password && (
+                  <div className="mt-2">
+                    <div className="flex gap-1 mb-1">
+                      {[0, 1, 2, 3].map((index) => (
+                        <div
+                          key={index}
+                          className={`h-1 flex-1 rounded-full transition-all ${
+                            index < passwordStrength ? strengthInfo.color : 'bg-gray-200'
+                          }`}
+                        />
+                      ))}
+                    </div>
+                    <p className={`text-xs font-medium ${strengthInfo.textColor}`}>
+                      {strengthInfo.label}
+                    </p>
+
+                    {/* Password Requirements */}
+                    <div className="mt-2 space-y-1">
+                      {[
+                        { test: password.length >= 8, label: 'At least 8 characters' },
+                        { test: /[A-Z]/.test(password), label: 'One uppercase letter' },
+                        { test: /[a-z]/.test(password), label: 'One lowercase letter' },
+                        { test: /\d/.test(password), label: 'One number' },
+                        { test: /[!@#$%^&*(),.?":{}|<>]/.test(password), label: 'One special character' },
+                      ].map((req, index) => (
+                        <div key={index} className="flex items-center text-xs">
+                          {req.test ? (
+                            <FiCheck className="text-green-500 mr-1" size={12} />
+                          ) : (
+                            <FiX className="text-gray-400 mr-1" size={12} />
+                          )}
+                          <span className={req.test ? 'text-green-600' : 'text-gray-500'}>
+                            {req.label}
+                          </span>
+                        </div>
+                      ))}
+                    </div>
+                  </div>
+                )}
               </div>
 
               <div>
                 <label htmlFor="confirmPassword" className="block text-sm font-semibold text-gray-700 mb-2">
                   ✅ Confirm Password
                 </label>
-                <input
-                  id="confirmPassword"
-                  name="confirmPassword"
-                  type="password"
-                  required
-                  className="appearance-none block w-full px-4 py-3 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
-                  placeholder="Re-enter password"
-                  value={confirmPassword}
-                  onChange={onChange}
-                />
+                <div className="relative">
+                  <input
+                    id="confirmPassword"
+                    name="confirmPassword"
+                    type={showConfirmPassword ? 'text' : 'password'}
+                    required
+                    className="appearance-none block w-full px-4 py-3 pr-12 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
+                    placeholder="Re-enter password"
+                    value={confirmPassword}
+                    onChange={onChange}
+                  />
+                  <button
+                    type="button"
+                    onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+                  >
+                    {showConfirmPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                  </button>
+                </div>
               </div>
 
               <button

@@ -1,4 +1,5 @@
 import api from './api';
+import logger from '../utils/logger';
 
 const exportService = {
   // Export to Excel
@@ -21,7 +22,7 @@ const exportService = {
 
       return { success: true };
     } catch (error) {
-      console.error('Excel export error:', error);
+      logger.error('Excel export error:', error);
       throw error;
     }
   },
@@ -46,7 +47,7 @@ const exportService = {
 
       return { success: true };
     } catch (error) {
-      console.error('PDF export error:', error);
+      logger.error('PDF export error:', error);
       throw error;
     }
   },
