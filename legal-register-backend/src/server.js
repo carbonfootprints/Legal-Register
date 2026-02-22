@@ -3,14 +3,20 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import path from 'path';
+import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
 import errorHandler from './middleware/errorHandler.js';
 import CronService from './services/cronService.js';
+
+const __filename = fileURLToPath(import.meta.url);
+const __dirname = path.dirname(__filename);
 
 // Import routes
 import authRoutes from './routes/authRoutes.js';
 import legalRegisterRoutes from './routes/legalRegisterRoutes.js';
 import exportRoutes from './routes/exportRoutes.js';
+import uploadRoutes from './routes/uploadRoutes.js';
 
 // Initialize express app
 const app = express();
@@ -27,6 +33,9 @@ app.use(cors({
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 
+// Serve uploaded files statically
+app.use('/uploads', express.static(path.join(__dirname, '../uploads')));
+
 // Routes
 app.get('/', (req, res) => {
   res.json({
@@ -36,7 +45,8 @@ app.get('/', (req, res) => {
     endpoints: {
       auth: '/api/auth',
       legalRegisters: '/api/legal-registers',
-      export: '/api/export'
+      export: '/api/export',
+      upload: '/api/upload'
     }
   });
 });
@@ -44,6 +54,7 @@ app.get('/', (req, res) => {
 app.use('/api/auth', authRoutes);
 app.use('/api/legal-registers', legalRegisterRoutes);
 app.use('/api/export', exportRoutes);
+app.use('/api/upload', uploadRoutes);
 
 // Test endpoint to manually trigger email check (for testing)
 app.post('/api/cron/trigger-email-check', async (req, res) => {

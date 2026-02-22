@@ -1,11 +1,12 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import legalRegisterService from '../../services/legalRegisterService';
 import exportService from '../../services/exportService';
+import uploadService from '../../services/uploadService';
 import Loader from '../common/Loader';
 import Modal from '../common/Modal';
 import { formatDate, getStatusBadgeClass, getDaysUntilRenewal, getRenewalUrgencyBadge } from '../../utils/dateHelpers';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiFileText } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiFileText, FiUpload, FiX } from 'react-icons/fi';
 
 const LegalRegisterList = () => {
   const [registers, setRegisters] = useState([]);
@@ -14,6 +15,10 @@ const LegalRegisterList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [permitDocumentFile, setPermitDocumentFile] = useState(null);
+  const [complianceReportFile, setComplianceReportFile] = useState(null);
+  const permitDocumentRef = useRef(null);
+  const complianceReportRef = useRef(null);
   const [formData, setFormData] = useState({
     permit: '',
     documentNo: '',
@@ -62,6 +67,10 @@ const LegalRegisterList = () => {
   };
 
   const handleOpenModal = (item = null) => {
+    // Reset file states
+    setPermitDocumentFile(null);
+    setComplianceReportFile(null);
+
     if (item) {
       setEditingItem(item);
       setFormData({
@@ -117,6 +126,28 @@ const LegalRegisterList = () => {
         dueDateForRenewal: formData.dueDateForRenewal || null,
         dateOfLastReport: formData.dateOfLastReport || null,
       };
+
+      // Upload files if selected
+      if (permitDocumentFile || complianceReportFile) {
+        try {
+          const uploadResponse = await uploadService.uploadDocuments(
+            permitDocumentFile,
+            complianceReportFile
+          );
+
+          if (uploadResponse.data.permitDocument) {
+            submitData.permitDocument = uploadResponse.data.permitDocument;
+          }
+          if (uploadResponse.data.complianceReport) {
+            submitData.complianceReport = uploadResponse.data.complianceReport;
+          }
+        } catch (uploadError) {
+          console.error('Error uploading files:', uploadError);
+          toast.error('Failed to upload files');
+          setSubmitting(false);
+          return;
+        }
+      }
 
       console.log('Submitting data to backend:', submitData);
 
@@ -404,25 +435,119 @@ const LegalRegisterList = () => {
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Permit Document (Scanned Copy URL)</label>
-              <input
-                type="text"
-                placeholder="Enter URL of scanned permit document"
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.permitDocument}
-                onChange={(e) => setFormData({ ...formData, permitDocument: e.target.value })}
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Permit Document (Scanned Copy)</label>
+              <div className="mt-1">
+                <input
+                  type="file"
+                  ref={permitDocumentRef}
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setPermitDocumentFile(file);
+                    }
+                  }}
+                />
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => permitDocumentRef.current?.click()}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <FiUpload className="mr-2" />
+                    Choose File
+                  </button>
+                  <span className="text-sm text-gray-500">
+                    {permitDocumentFile ? permitDocumentFile.name : (formData.permitDocument ? 'Existing file uploaded' : 'No file chosen')}
+                  </span>
+                  {(permitDocumentFile || formData.permitDocument) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setPermitDocumentFile(null);
+                        setFormData({ ...formData, permitDocument: '' });
+                        if (permitDocumentRef.current) {
+                          permitDocumentRef.current.value = '';
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                      title="Remove file"
+                    >
+                      <FiX />
+                    </button>
+                  )}
+                </div>
+                {formData.permitDocument && !permitDocumentFile && (
+                  <a
+                    href={uploadService.getFileUrl(formData.permitDocument)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline mt-1 inline-block"
+                  >
+                    View current document
+                  </a>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Accepted formats: PDF, JPEG, PNG, DOC, DOCX (Max 10MB)</p>
             </div>
 
             <div className="col-span-2">
-              <label className="block text-sm font-medium text-gray-700 mb-1">Compliance Report (URL)</label>
-              <input
-                type="text"
-                placeholder="Enter URL of compliance report"
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
-                value={formData.complianceReport}
-                onChange={(e) => setFormData({ ...formData, complianceReport: e.target.value })}
-              />
+              <label className="block text-sm font-medium text-gray-700 mb-1">Compliance Report</label>
+              <div className="mt-1">
+                <input
+                  type="file"
+                  ref={complianceReportRef}
+                  accept=".pdf,.jpg,.jpeg,.png,.doc,.docx"
+                  className="hidden"
+                  onChange={(e) => {
+                    const file = e.target.files[0];
+                    if (file) {
+                      setComplianceReportFile(file);
+                    }
+                  }}
+                />
+                <div className="flex items-center space-x-2">
+                  <button
+                    type="button"
+                    onClick={() => complianceReportRef.current?.click()}
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                  >
+                    <FiUpload className="mr-2" />
+                    Choose File
+                  </button>
+                  <span className="text-sm text-gray-500">
+                    {complianceReportFile ? complianceReportFile.name : (formData.complianceReport ? 'Existing file uploaded' : 'No file chosen')}
+                  </span>
+                  {(complianceReportFile || formData.complianceReport) && (
+                    <button
+                      type="button"
+                      onClick={() => {
+                        setComplianceReportFile(null);
+                        setFormData({ ...formData, complianceReport: '' });
+                        if (complianceReportRef.current) {
+                          complianceReportRef.current.value = '';
+                        }
+                      }}
+                      className="text-red-500 hover:text-red-700"
+                      title="Remove file"
+                    >
+                      <FiX />
+                    </button>
+                  )}
+                </div>
+                {formData.complianceReport && !complianceReportFile && (
+                  <a
+                    href={uploadService.getFileUrl(formData.complianceReport)}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="text-sm text-blue-600 hover:underline mt-1 inline-block"
+                  >
+                    View current document
+                  </a>
+                )}
+              </div>
+              <p className="text-xs text-gray-500 mt-1">Accepted formats: PDF, JPEG, PNG, DOC, DOCX (Max 10MB)</p>
             </div>
           </div>
 
