@@ -160,10 +160,8 @@ if (process.env.NODE_ENV !== 'production') {
 // Error handler middleware (must be last)
 app.use(errorHandler);
 
-// Start cron job for email notifications (only in development)
-if (process.env.NODE_ENV !== 'production') {
-  CronService.startRenewalNotificationJob();
-}
+// Start cron job for email notifications
+CronService.startRenewalNotificationJob();
 
 // Handle unhandled promise rejections in all environments
 process.on('unhandledRejection', (err) => {
@@ -172,17 +170,14 @@ process.on('unhandledRejection', (err) => {
   process.exit(1);
 });
 
-// Start server (only in development, not on Vercel)
+// Start server
 const PORT = process.env.PORT || 5000;
-if (process.env.NODE_ENV !== 'production') {
-  app.listen(PORT, () => {
-    logger.important('=====================================');
-    logger.important(`Server running in ${process.env.NODE_ENV} mode`);
-    logger.important(`Server listening on port ${PORT}`);
-    logger.important(`API URL: http://localhost:${PORT}`);
-    logger.important('=====================================');
-  });
-}
+app.listen(PORT, () => {
+  logger.important('=====================================');
+  logger.important(`Server running in ${process.env.NODE_ENV} mode`);
+  logger.important(`Server listening on port ${PORT}`);
+  logger.important(`API URL: http://localhost:${PORT}`);
+  logger.important('=====================================');
+});
 
-// Export for Vercel serverless
 export default app;
