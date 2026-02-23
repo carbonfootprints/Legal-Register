@@ -10,6 +10,16 @@ const generateToken = (id) => {
   });
 };
 
+// Set JWT as httpOnly cookie
+const sendTokenCookie = (res, token) => {
+  res.cookie('token', token, {
+    httpOnly: true,
+    secure: process.env.NODE_ENV === 'production',
+    sameSite: 'strict',
+    maxAge: 7 * 24 * 60 * 60 * 1000,
+  });
+};
+
 // Validate password strength
 const validatePassword = (password) => {
   const errors = [];
@@ -83,6 +93,7 @@ export const register = async (req, res) => {
     });
 
     if (user) {
+      sendTokenCookie(res, generateToken(user._id));
       res.status(201).json({
         success: true,
         data: {
@@ -90,7 +101,6 @@ export const register = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
-          token: generateToken(user._id)
         }
       });
     }
@@ -149,6 +159,7 @@ export const login = async (req, res) => {
     user.lastLogin = new Date();
     await user.save({ validateBeforeSave: false });
 
+    sendTokenCookie(res, generateToken(user._id));
     res.json({
       success: true,
       data: {
@@ -156,7 +167,6 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
-        token: generateToken(user._id)
       }
     });
   } catch (error) {
@@ -186,10 +196,11 @@ export const getMe = async (req, res) => {
   }
 };
 
-// @desc    Logout user (client-side will remove token)
+// @desc    Logout user
 // @route   POST /api/auth/logout
 // @access  Private
 export const logout = async (req, res) => {
+  res.clearCookie('token');
   res.json({
     success: true,
     message: 'Logged out successfully'

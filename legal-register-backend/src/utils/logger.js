@@ -8,14 +8,7 @@ const logger = {
     }
   },
   error: (...args) => {
-    // Always log errors, but with less detail in production
-    if (isDevelopment) {
-      console.error(...args);
-    } else {
-      // In production, log only the error message, not full stack
-      const message = args[0];
-      console.error(typeof message === 'string' ? message : 'An error occurred');
-    }
+    console.error(...args);
   },
   warn: (...args) => {
     if (isDevelopment) {

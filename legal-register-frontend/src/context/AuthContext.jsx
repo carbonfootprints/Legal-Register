@@ -8,10 +8,9 @@ export const AuthProvider = ({ children }) => {
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
-    // Check if user is logged in on mount
-    const token = authService.getToken();
-    if (token) {
-      const userData = authService.getUserFromStorage();
+    // Restore user from local storage (cookie handles actual auth)
+    const userData = authService.getUserFromStorage();
+    if (userData) {
       setUser(userData);
     }
     setLoading(false);
@@ -43,8 +42,8 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
-  const logout = () => {
-    authService.logout();
+  const logout = async () => {
+    await authService.logout();
     setUser(null);
   };
 

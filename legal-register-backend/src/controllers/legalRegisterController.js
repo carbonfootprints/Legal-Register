@@ -39,10 +39,11 @@ export const getAllLegalRegisters = async (req, res) => {
 
     // Text search (permit name or document number)
     if (req.query.search) {
+      const safeSearch = req.query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
-        { permit: { $regex: req.query.search, $options: "i" } },
-        { documentNo: { $regex: req.query.search, $options: "i" } },
-        { issuingAuthority: { $regex: req.query.search, $options: "i" } },
+        { permit: { $regex: safeSearch, $options: "i" } },
+        { documentNo: { $regex: safeSearch, $options: "i" } },
+        { issuingAuthority: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
@@ -68,8 +69,9 @@ export const getAllLegalRegisters = async (req, res) => {
     }
 
     // Sorting
+    const allowedSortFields = ['slNo', 'permit', 'documentNo', 'dateOfExpiry', 'dueDateForRenewal', 'status', 'responsibility', 'issuingAuthority', 'createdAt'];
     let sortBy = {};
-    if (req.query.sortBy) {
+    if (req.query.sortBy && allowedSortFields.includes(req.query.sortBy)) {
       const order = req.query.sortOrder === "desc" ? -1 : 1;
       sortBy[req.query.sortBy] = order;
     } else {
@@ -338,16 +340,18 @@ export const getArchivedLegalRegisters = async (req, res) => {
 
     // Text search
     if (req.query.search) {
+      const safeSearch = req.query.search.replace(/[.*+?^${}()|[\]\\]/g, '\\$&');
       query.$or = [
-        { permit: { $regex: req.query.search, $options: "i" } },
-        { documentNo: { $regex: req.query.search, $options: "i" } },
-        { issuingAuthority: { $regex: req.query.search, $options: "i" } },
+        { permit: { $regex: safeSearch, $options: "i" } },
+        { documentNo: { $regex: safeSearch, $options: "i" } },
+        { issuingAuthority: { $regex: safeSearch, $options: "i" } },
       ];
     }
 
     // Sorting
+    const allowedSortFields = ['slNo', 'permit', 'documentNo', 'dateOfExpiry', 'dueDateForRenewal', 'status', 'responsibility', 'issuingAuthority', 'createdAt'];
     let sortBy = {};
-    if (req.query.sortBy) {
+    if (req.query.sortBy && allowedSortFields.includes(req.query.sortBy)) {
       const order = req.query.sortOrder === "desc" ? -1 : 1;
       sortBy[req.query.sortBy] = order;
     } else {

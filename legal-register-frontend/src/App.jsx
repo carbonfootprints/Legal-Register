@@ -3,6 +3,7 @@ import { BrowserRouter as Router, Routes, Route, Navigate } from 'react-router-d
 import { Toaster } from 'react-hot-toast';
 import { AuthProvider } from './context/AuthContext';
 import PrivateRoute from './components/auth/PrivateRoute';
+import ErrorBoundary from './components/ErrorBoundary';
 import Login from './components/auth/Login';
 import Register from './components/auth/Register';
 import ForgotPassword from './components/auth/ForgotPassword';
@@ -20,6 +21,7 @@ function App() {
   const closeSidebar = () => setSidebarOpen(false);
 
   return (
+    <ErrorBoundary>
     <AuthProvider>
       <Router>
         <Toaster position="top-right" />
@@ -55,6 +57,7 @@ function App() {
         </Routes>
       </Router>
     </AuthProvider>
+    </ErrorBoundary>
   );
 }
 

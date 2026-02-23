@@ -4,8 +4,8 @@ const authService = {
   // Register new user
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
-    if (response.data.success && response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
+    if (response.data.success) {
+      // Token is set as httpOnly cookie by server; store only non-sensitive profile data
       localStorage.setItem('user', JSON.stringify(response.data.data));
     }
     return response.data;
@@ -14,17 +14,21 @@ const authService = {
   // Login user
   login: async (credentials) => {
     const response = await api.post('/auth/login', credentials);
-    if (response.data.success && response.data.data.token) {
-      localStorage.setItem('token', response.data.data.token);
+    if (response.data.success) {
+      // Token is set as httpOnly cookie by server; store only non-sensitive profile data
       localStorage.setItem('user', JSON.stringify(response.data.data));
     }
     return response.data;
   },
 
-  // Logout user
-  logout: () => {
-    localStorage.removeItem('token');
-    localStorage.removeItem('user');
+  // Logout user — clear server cookie then local state
+  logout: async () => {
+    try {
+      await api.post('/auth/logout');
+    } catch (_) {
+      // ignore network errors on logout
+    }
+    localStorage.clear();
   },
 
   // Get current user
@@ -39,14 +43,14 @@ const authService = {
     return user ? JSON.parse(user) : null;
   },
 
-  // Get token from local storage
+  // Token is in httpOnly cookie — not accessible from JS
   getToken: () => {
-    return localStorage.getItem('token');
+    return null;
   },
 
-  // Check if user is authenticated
+  // Check if user is authenticated (presence of stored user profile)
   isAuthenticated: () => {
-    return !!localStorage.getItem('token');
+    return !!localStorage.getItem('user');
   },
 
   // Forgot password - request reset email

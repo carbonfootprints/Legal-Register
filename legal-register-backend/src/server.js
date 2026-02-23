@@ -4,6 +4,8 @@ dotenv.config();
 import express from 'express';
 import cors from 'cors';
 import helmet from 'helmet';
+import cookieParser from 'cookie-parser';
+import crypto from 'crypto';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
@@ -23,6 +25,14 @@ import legalRegisterRoutes from './routes/legalRegisterRoutes.js';
 import exportRoutes from './routes/exportRoutes.js';
 import uploadRoutes from './routes/uploadRoutes.js';
 
+// Validate required environment variables before starting
+const requiredEnvVars = ['MONGODB_URI', 'JWT_SECRET', 'EMAIL_USER', 'EMAIL_PASS', 'CRON_SECRET'];
+const missingEnvVars = requiredEnvVars.filter((v) => !process.env[v]);
+if (missingEnvVars.length > 0) {
+  console.error(`Missing required environment variables: ${missingEnvVars.join(', ')}`);
+  process.exit(1);
+}
+
 // Initialize express app
 const app = express();
 
@@ -32,7 +42,17 @@ connectDB();
 // Security Middleware
 app.use(helmet({
   crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin for uploads
-  contentSecurityPolicy: false // Disable CSP for Swagger UI compatibility
+  contentSecurityPolicy: {
+    directives: {
+      defaultSrc: ["'self'"],
+      scriptSrc: ["'self'", "'unsafe-inline'", "'unsafe-eval'"], // unsafe-eval needed for Swagger UI
+      styleSrc: ["'self'", "'unsafe-inline'", "https://fonts.googleapis.com"],
+      imgSrc: ["'self'", "data:", "https://validator.swagger.io"],
+      connectSrc: ["'self'"],
+      fontSrc: ["'self'", "https://fonts.gstatic.com"],
+      workerSrc: ["blob:"], // Swagger UI uses blob workers
+    },
+  },
 }));
 
 // Middleware
@@ -43,6 +63,7 @@ app.use(cors({
 
 app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
+app.use(cookieParser());
 
 // Apply rate limiting to all API routes
 app.use('/api', apiLimiter);
@@ -86,15 +107,19 @@ app.use('/api/upload', uploadRoutes);
 // Cron endpoint for Vercel/external cron services (secured with secret)
 app.get('/api/cron/daily-email-check', async (req, res) => {
   try {
-    // Verify cron secret for security
+    // Verify cron secret for security (timing-safe comparison)
     const authHeader = req.headers.authorization;
     const cronSecret = process.env.CRON_SECRET;
 
-    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
-      return res.status(401).json({
-        success: false,
-        message: 'Unauthorized'
-      });
+    if (cronSecret) {
+      const expected = crypto.createHmac('sha256', cronSecret).update(`Bearer ${cronSecret}`).digest();
+      const actual = crypto.createHmac('sha256', cronSecret).update(authHeader || '').digest();
+      if (!crypto.timingSafeEqual(expected, actual)) {
+        return res.status(401).json({
+          success: false,
+          message: 'Unauthorized'
+        });
+      }
     }
 
     logger.log('Daily email check triggered via cron endpoint');
@@ -140,6 +165,13 @@ if (process.env.NODE_ENV !== 'production') {
   CronService.startRenewalNotificationJob();
 }
 
+// Handle unhandled promise rejections in all environments
+process.on('unhandledRejection', (err) => {
+  logger.error(`Error: ${err.message}`);
+  logger.error('Shutting down the server due to unhandled promise rejection');
+  process.exit(1);
+});
+
 // Start server (only in development, not on Vercel)
 const PORT = process.env.PORT || 5000;
 if (process.env.NODE_ENV !== 'production') {
@@ -149,13 +181,6 @@ if (process.env.NODE_ENV !== 'production') {
     logger.important(`Server listening on port ${PORT}`);
     logger.important(`API URL: http://localhost:${PORT}`);
     logger.important('=====================================');
-  });
-
-  // Handle unhandled promise rejections
-  process.on('unhandledRejection', (err) => {
-    logger.error(`Error: ${err.message}`);
-    logger.error('Shutting down the server due to unhandled promise rejection');
-    process.exit(1);
   });
 }
 

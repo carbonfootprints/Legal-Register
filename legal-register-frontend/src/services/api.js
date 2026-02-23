@@ -12,13 +12,13 @@ const api = axios.create({
     'Content-Type': 'application/json',
   },
   timeout: 30000, // 30 second timeout
+  withCredentials: true,
 });
 
 // Request interceptor to add JWT token
 api.interceptors.request.use(
   (config) => {
     logger.log('Making request to:', config.baseURL + config.url);
-    logger.log('Request data:', config.data);
     const token = localStorage.getItem('token');
     if (token) {
       config.headers.Authorization = `Bearer ${token}`;
@@ -34,7 +34,6 @@ api.interceptors.request.use(
 // Response interceptor to handle errors
 api.interceptors.response.use(
   (response) => {
-    logger.log('Response received:', response.status, response.data);
     return response;
   },
   (error) => {
@@ -43,8 +42,7 @@ api.interceptors.response.use(
       // Server responded with error status
       logger.error('Error response:', error.response.status, error.response.data);
       if (error.response.status === 401) {
-        // Unauthorized - clear token and redirect to login
-        localStorage.removeItem('token');
+        // Unauthorized - clear local state and redirect to login
         localStorage.removeItem('user');
         window.location.href = '/login';
       }
