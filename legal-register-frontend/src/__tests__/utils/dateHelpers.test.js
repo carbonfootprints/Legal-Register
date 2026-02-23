@@ -75,24 +75,31 @@ describe('Date Helpers', () => {
   });
 
   describe('getRenewalUrgencyBadge', () => {
-    it('should return expired badge for negative days', () => {
+    it('should return overdue badge for negative days', () => {
       const result = getRenewalUrgencyBadge(-5);
-      expect(result.label).toContain('Expired');
+      expect(result.label).toBe('Overdue');
+      expect(result.class).toContain('red');
     });
 
     it('should return due today badge for 0 days', () => {
       const result = getRenewalUrgencyBadge(0);
       expect(result.label).toContain('Today');
-    });
-
-    it('should return urgent badge for days <= 2', () => {
-      const result = getRenewalUrgencyBadge(2);
       expect(result.class).toContain('red');
     });
 
-    it('should return warning badge for days <= 7', () => {
+    it('should return orange badge for 2 days', () => {
+      const result = getRenewalUrgencyBadge(2);
+      expect(result.class).toContain('orange');
+    });
+
+    it('should return yellow badge for days <= 7 and > 2', () => {
       const result = getRenewalUrgencyBadge(5);
-      expect(result.class).toContain('orange') || expect(result.class).toContain('yellow');
+      expect(result.class).toContain('yellow');
+    });
+
+    it('should return green badge for days > 7', () => {
+      const result = getRenewalUrgencyBadge(10);
+      expect(result.class).toContain('green');
     });
   });
 });

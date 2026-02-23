@@ -4,13 +4,18 @@ import react from '@vitejs/plugin-react';
 export default defineConfig({
   plugins: [react()],
   test: {
-    environment: 'jsdom',
+    environment: 'node',
     globals: true,
     setupFiles: ['./src/__tests__/setup.js'],
     include: ['src/**/*.{test,spec}.{js,jsx}'],
     coverage: {
       reporter: ['text', 'json', 'html'],
       exclude: ['node_modules/', 'src/__tests__/'],
+    },
+    server: {
+      deps: {
+        inline: [/@csstools/, /@asamuzakjp/, /css-color/],
+      },
     },
   },
 });

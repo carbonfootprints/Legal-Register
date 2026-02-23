@@ -1,4 +1,3 @@
-import '@testing-library/jest-dom';
 import { vi } from 'vitest';
 
 // Mock localStorage
@@ -10,17 +9,18 @@ const localStorageMock = {
 };
 global.localStorage = localStorageMock;
 
-// Mock window.location
-delete window.location;
-window.location = {
-  href: '',
-  pathname: '/',
-  search: '',
-  hash: '',
-  origin: 'http://localhost:3000',
-  assign: vi.fn(),
-  replace: vi.fn(),
-  reload: vi.fn(),
+// Mock window object for Node environment
+global.window = {
+  location: {
+    href: '',
+    pathname: '/',
+    search: '',
+    hash: '',
+    origin: 'http://localhost:3000',
+    assign: vi.fn(),
+    replace: vi.fn(),
+    reload: vi.fn(),
+  },
 };
 
 // Reset mocks between tests

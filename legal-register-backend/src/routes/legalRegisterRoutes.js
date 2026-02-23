@@ -128,41 +128,44 @@ router.get('/alerts/expiry', getExpiryAlerts);
  */
 router.get('/archived', getArchivedLegalRegisters);
 
-// Test endpoint to manually trigger email notifications
-router.post('/test/send-emails', async (req, res) => {
-  try {
-    logger.log('Manual email notification trigger by:', req.user.email);
-    const result = await CronService.checkAndSendReminders();
-    res.json({
-      success: true,
-      message: 'Email notification check completed',
-      data: result
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
+// Test endpoints - only available in development
+if (process.env.NODE_ENV !== 'production') {
+  // Test endpoint to manually trigger email notifications
+  router.post('/test/send-emails', async (req, res) => {
+    try {
+      logger.log('Manual email notification trigger by:', req.user.email);
+      const result = await CronService.checkAndSendReminders();
+      res.json({
+        success: true,
+        message: 'Email notification check completed',
+        data: result
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  });
 
-// Test endpoint to clear email logs (for testing only)
-router.delete('/test/clear-email-logs', async (req, res) => {
-  try {
-    const result = await EmailLog.deleteMany({});
-    logger.log('Cleared all email logs by:', req.user.email);
-    res.json({
-      success: true,
-      message: `Cleared ${result.deletedCount} email logs`,
-      data: result
-    });
-  } catch (error) {
-    res.status(500).json({
-      success: false,
-      message: error.message
-    });
-  }
-});
+  // Test endpoint to clear email logs (for testing only)
+  router.delete('/test/clear-email-logs', async (req, res) => {
+    try {
+      const result = await EmailLog.deleteMany({});
+      logger.log('Cleared all email logs by:', req.user.email);
+      res.json({
+        success: true,
+        message: `Cleared ${result.deletedCount} email logs`,
+        data: result
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  });
+}
 
 /**
  * @swagger

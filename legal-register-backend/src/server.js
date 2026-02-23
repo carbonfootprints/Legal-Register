@@ -3,6 +3,7 @@ dotenv.config();
 
 import express from 'express';
 import cors from 'cors';
+import helmet from 'helmet';
 import path from 'path';
 import { fileURLToPath } from 'url';
 import connectDB from './config/database.js';
@@ -27,6 +28,12 @@ const app = express();
 
 // Connect to database
 connectDB();
+
+// Security Middleware
+app.use(helmet({
+  crossOriginResourcePolicy: { policy: "cross-origin" }, // Allow cross-origin for uploads
+  contentSecurityPolicy: false // Disable CSP for Swagger UI compatibility
+}));
 
 // Middleware
 app.use(cors({
@@ -76,10 +83,21 @@ app.use('/api/legal-registers', legalRegisterRoutes);
 app.use('/api/export', exportRoutes);
 app.use('/api/upload', uploadRoutes);
 
-// Test endpoint to manually trigger email check (for testing)
-app.post('/api/cron/trigger-email-check', async (req, res) => {
+// Cron endpoint for Vercel/external cron services (secured with secret)
+app.get('/api/cron/daily-email-check', async (req, res) => {
   try {
-    logger.log('Manual email check triggered via API');
+    // Verify cron secret for security
+    const authHeader = req.headers.authorization;
+    const cronSecret = process.env.CRON_SECRET;
+
+    if (cronSecret && authHeader !== `Bearer ${cronSecret}`) {
+      return res.status(401).json({
+        success: false,
+        message: 'Unauthorized'
+      });
+    }
+
+    logger.log('Daily email check triggered via cron endpoint');
     const result = await CronService.triggerManualCheck();
     res.json({
       success: true,
@@ -93,6 +111,26 @@ app.post('/api/cron/trigger-email-check', async (req, res) => {
     });
   }
 });
+
+// Test endpoint to manually trigger email check (development only)
+if (process.env.NODE_ENV !== 'production') {
+  app.post('/api/cron/trigger-email-check', async (req, res) => {
+    try {
+      logger.log('Manual email check triggered via API');
+      const result = await CronService.triggerManualCheck();
+      res.json({
+        success: true,
+        message: 'Email check completed',
+        data: result
+      });
+    } catch (error) {
+      res.status(500).json({
+        success: false,
+        message: error.message
+      });
+    }
+  });
+}
 
 // Error handler middleware (must be last)
 app.use(errorHandler);

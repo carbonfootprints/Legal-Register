@@ -14,13 +14,20 @@ describe('LegalRegister Model', () => {
 
   describe('LegalRegister Creation', () => {
     it('should create a legal register successfully with valid data', async () => {
+      // Use future dates to avoid auto-archive
+      const oneYearFromNow = new Date();
+      oneYearFromNow.setFullYear(oneYearFromNow.getFullYear() + 1);
+
+      const elevenMonthsFromNow = new Date();
+      elevenMonthsFromNow.setMonth(elevenMonthsFromNow.getMonth() + 11);
+
       const registerData = {
         permit: 'Environmental Clearance',
         documentNo: 'EC-2024-001',
         issuingAuthority: 'State Pollution Control Board',
-        dateOfIssue: new Date('2024-01-15'),
-        dateOfExpiry: new Date('2025-01-15'),
-        dueDateForRenewal: new Date('2024-12-15'),
+        dateOfIssue: new Date(),
+        dateOfExpiry: oneYearFromNow,
+        dueDateForRenewal: elevenMonthsFromNow,
         responsibility: 'Environment Manager',
         createdBy: testUser._id
       };
