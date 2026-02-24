@@ -1,10 +1,17 @@
 import { useState } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { FiLogOut, FiUser, FiMenu } from 'react-icons/fi';
 
+const PAGE_TITLES = {
+  '/dashboard': 'Dashboard',
+  '/legal-registers': 'Legal Registers',
+  '/archived-permits': 'Archived Permits',
+};
+
 const Navbar = ({ toggleSidebar }) => {
   const navigate = useNavigate();
+  const location = useLocation();
   const { user, logout } = useAuth();
   const [showUserMenu, setShowUserMenu] = useState(false);
 
@@ -13,24 +20,22 @@ const Navbar = ({ toggleSidebar }) => {
     navigate('/login');
   };
 
+  const pageTitle = PAGE_TITLES[location.pathname] || 'Legal Register';
+
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
       <div className="px-4 sm:px-6">
         <div className="flex justify-between h-16">
-          <div className="flex items-center">
+          <div className="flex items-center gap-3">
             <button
               onClick={toggleSidebar}
-              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none lg:hidden mr-1"
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none lg:hidden"
             >
               <FiMenu className="h-5 w-5" />
             </button>
-            <div className="flex items-center">
-              <span className="text-base font-semibold text-gray-800 hidden sm:block">
-                {user?.companyName || 'Legal Register Management'}
-              </span>
-              <span className="text-base font-semibold text-gray-800 sm:hidden">
-                {user?.companyName ? user.companyName.split(' ')[0] : 'Legal Register'}
-              </span>
+            <div className="flex flex-col justify-center">
+              <span className="text-sm font-semibold text-gray-900 leading-tight">{pageTitle}</span>
+              <span className="text-xs text-gray-400 hidden sm:block leading-tight">{user?.companyName}</span>
             </div>
           </div>
 

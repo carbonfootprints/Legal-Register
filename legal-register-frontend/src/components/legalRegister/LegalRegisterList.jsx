@@ -7,7 +7,10 @@ import Modal from '../common/Modal';
 import { formatDate, getStatusBadgeClass, getDaysUntilRenewal, getRenewalUrgencyBadge } from '../../utils/dateHelpers';
 import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiFileText, FiUpload, FiX } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiFileText, FiUpload, FiX, FiSearch, FiCheck } from 'react-icons/fi';
+
+const inputClass = 'mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors';
+const dateInputClass = 'w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors';
 
 const LegalRegisterList = () => {
   const [registers, setRegisters] = useState([]);
@@ -16,6 +19,8 @@ const LegalRegisterList = () => {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [editingItem, setEditingItem] = useState(null);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+  const [deletingId, setDeletingId] = useState(null);
   const [permitDocumentFile, setPermitDocumentFile] = useState(null);
   const [complianceReportFile, setComplianceReportFile] = useState(null);
   const permitDocumentRef = useRef(null);
@@ -35,15 +40,23 @@ const LegalRegisterList = () => {
     complianceReport: ''
   });
 
+  // Debounce search input by 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
+
   useEffect(() => {
     fetchRegisters();
-  }, [searchTerm]);
+  }, [debouncedSearch]);
 
   const fetchRegisters = async () => {
     setLoading(true);
     try {
       const params = {};
-      if (searchTerm) params.search = searchTerm;
+      if (debouncedSearch) params.search = debouncedSearch;
 
       const response = await legalRegisterService.getAll(params);
       if (response.success) {
@@ -57,7 +70,6 @@ const LegalRegisterList = () => {
     }
   };
 
-  // Helper function to convert ISO date to YYYY-MM-DD format
   const formatDateForInput = (dateString) => {
     if (!dateString) return '';
     const date = new Date(dateString);
@@ -68,7 +80,6 @@ const LegalRegisterList = () => {
   };
 
   const handleOpenModal = (item = null) => {
-    // Reset file states
     setPermitDocumentFile(null);
     setComplianceReportFile(null);
 
@@ -120,7 +131,6 @@ const LegalRegisterList = () => {
     setSubmitting(true);
 
     try {
-      // Convert empty strings to null for optional date fields
       const submitData = {
         ...formData,
         dateOfExpiry: formData.dateOfExpiry || null,
@@ -128,7 +138,6 @@ const LegalRegisterList = () => {
         dateOfLastReport: formData.dateOfLastReport || null,
       };
 
-      // Upload files if selected
       if (permitDocumentFile || complianceReportFile) {
         try {
           const uploadResponse = await uploadService.uploadDocuments(
@@ -153,41 +162,37 @@ const LegalRegisterList = () => {
       logger.log('Submitting data to backend:', submitData);
 
       if (editingItem) {
-        const response = await legalRegisterService.update(editingItem._id, submitData);
-        logger.log('Update response:', response);
+        await legalRegisterService.update(editingItem._id, submitData);
         toast.success('Legal register updated successfully');
       } else {
-        const response = await legalRegisterService.create(submitData);
-        logger.log('Create response:', response);
+        await legalRegisterService.create(submitData);
         toast.success('Legal register created successfully');
       }
       handleCloseModal();
       fetchRegisters();
     } catch (error) {
       logger.error('Error saving register:', error);
-      logger.error('Error details:', error.response?.data);
       toast.error(error.response?.data?.message || 'Failed to save legal register');
     } finally {
       setSubmitting(false);
     }
   };
 
-  const handleDelete = async (id) => {
-    if (window.confirm('Are you sure you want to delete this entry?')) {
-      try {
-        await legalRegisterService.delete(id);
-        toast.success('Legal register deleted successfully');
-        fetchRegisters();
-      } catch (error) {
-        logger.error('Error deleting register:', error);
-        toast.error('Failed to delete legal register');
-      }
+  const handleDeleteConfirm = async (id) => {
+    try {
+      await legalRegisterService.delete(id);
+      toast.success('Legal register deleted successfully');
+      setDeletingId(null);
+      fetchRegisters();
+    } catch (error) {
+      logger.error('Error deleting register:', error);
+      toast.error('Failed to delete legal register');
     }
   };
 
   const handleExportExcel = async () => {
     try {
-      await exportService.exportToExcel({ search: searchTerm });
+      await exportService.exportToExcel({ search: debouncedSearch });
       toast.success('Excel file downloaded successfully');
     } catch (error) {
       logger.error('Error exporting to Excel:', error);
@@ -197,7 +202,7 @@ const LegalRegisterList = () => {
 
   const handleExportPDF = async () => {
     try {
-      await exportService.exportToPDF({ search: searchTerm });
+      await exportService.exportToPDF({ search: debouncedSearch });
       toast.success('PDF file downloaded successfully');
     } catch (error) {
       logger.error('Error exporting to PDF:', error);
@@ -224,27 +229,30 @@ const LegalRegisterList = () => {
 
       {/* Search and Export */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap gap-3 justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search by permit, document no., or issuing authority..."
-          className="border border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="relative flex-1 min-w-0">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search by permit, document no., or issuing authority..."
+            className="border border-gray-300 rounded-lg pl-9 pr-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <div className="flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={handleExportExcel}
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
           >
             <FiDownload className="mr-1.5 h-4 w-4" />
-            Excel
+            Export Excel
           </button>
           <button
             onClick={handleExportPDF}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
           >
             <FiFileText className="mr-1.5 h-4 w-4" />
-            PDF
+            Export PDF
           </button>
         </div>
       </div>
@@ -288,6 +296,7 @@ const LegalRegisterList = () => {
                 {registers.map((register) => {
                   const days = getDaysUntilRenewal(register.dueDateForRenewal);
                   const urgencyBadge = getRenewalUrgencyBadge(days);
+                  const isDeleting = deletingId === register._id;
                   return (
                     <tr key={register._id} className="hover:bg-gray-50">
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{register.slNo}</td>
@@ -306,18 +315,42 @@ const LegalRegisterList = () => {
                         </span>
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm font-medium">
-                        <button
-                          onClick={() => handleOpenModal(register)}
-                          className="text-blue-600 hover:text-blue-900 mr-3"
-                        >
-                          <FiEdit2 />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(register._id)}
-                          className="text-red-600 hover:text-red-900"
-                        >
-                          <FiTrash2 />
-                        </button>
+                        {isDeleting ? (
+                          <div className="flex items-center gap-2">
+                            <span className="text-xs text-gray-600 mr-1">Delete?</span>
+                            <button
+                              onClick={() => handleDeleteConfirm(register._id)}
+                              className="p-1.5 rounded-lg bg-red-100 text-red-600 hover:bg-red-200 transition-colors"
+                              title="Confirm delete"
+                            >
+                              <FiCheck className="h-3.5 w-3.5" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingId(null)}
+                              className="p-1.5 rounded-lg bg-gray-100 text-gray-600 hover:bg-gray-200 transition-colors"
+                              title="Cancel"
+                            >
+                              <FiX className="h-3.5 w-3.5" />
+                            </button>
+                          </div>
+                        ) : (
+                          <div className="flex items-center gap-1">
+                            <button
+                              onClick={() => handleOpenModal(register)}
+                              className="p-1.5 rounded-lg text-blue-600 hover:bg-blue-50 transition-colors"
+                              title="Edit"
+                            >
+                              <FiEdit2 className="h-4 w-4" />
+                            </button>
+                            <button
+                              onClick={() => setDeletingId(register._id)}
+                              className="p-1.5 rounded-lg text-red-600 hover:bg-red-50 transition-colors"
+                              title="Delete"
+                            >
+                              <FiTrash2 className="h-4 w-4" />
+                            </button>
+                          </div>
+                        )}
                       </td>
                     </tr>
                   );
@@ -337,7 +370,7 @@ const LegalRegisterList = () => {
               <input
                 type="text"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
+                className={inputClass}
                 value={formData.permit}
                 onChange={(e) => setFormData({ ...formData, permit: e.target.value })}
               />
@@ -348,7 +381,7 @@ const LegalRegisterList = () => {
               <input
                 type="text"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
+                className={inputClass}
                 value={formData.documentNo}
                 onChange={(e) => setFormData({ ...formData, documentNo: e.target.value })}
               />
@@ -359,7 +392,7 @@ const LegalRegisterList = () => {
               <input
                 type="text"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
+                className={inputClass}
                 value={formData.responsibility}
                 onChange={(e) => setFormData({ ...formData, responsibility: e.target.value })}
               />
@@ -370,7 +403,7 @@ const LegalRegisterList = () => {
               <input
                 type="text"
                 required
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
+                className={inputClass}
                 value={formData.issuingAuthority}
                 onChange={(e) => setFormData({ ...formData, issuingAuthority: e.target.value })}
               />
@@ -381,7 +414,7 @@ const LegalRegisterList = () => {
               <input
                 type="date"
                 required
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={dateInputClass}
                 value={formData.dateOfIssue}
                 onChange={(e) => setFormData({ ...formData, dateOfIssue: e.target.value })}
               />
@@ -390,7 +423,7 @@ const LegalRegisterList = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700">Status</label>
               <select
-                className="mt-1 block w-full border border-gray-300 rounded-md shadow-sm px-3 py-2"
+                className={inputClass}
                 value={formData.status}
                 onChange={(e) => setFormData({ ...formData, status: e.target.value })}
               >
@@ -405,7 +438,7 @@ const LegalRegisterList = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Date of Expiry</label>
               <input
                 type="date"
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={dateInputClass}
                 value={formData.dateOfExpiry}
                 onChange={(e) => setFormData({ ...formData, dateOfExpiry: e.target.value })}
               />
@@ -415,7 +448,7 @@ const LegalRegisterList = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Due Date for Renewal</label>
               <input
                 type="date"
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={dateInputClass}
                 value={formData.dueDateForRenewal}
                 onChange={(e) => setFormData({ ...formData, dueDateForRenewal: e.target.value })}
               />
@@ -424,7 +457,7 @@ const LegalRegisterList = () => {
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">Reporting Frequency</label>
               <select
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={dateInputClass}
                 value={formData.reportingFrequency}
                 onChange={(e) => setFormData({ ...formData, reportingFrequency: e.target.value })}
               >
@@ -444,7 +477,7 @@ const LegalRegisterList = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Date of Last Report</label>
               <input
                 type="date"
-                className="w-full border border-gray-300 rounded-md shadow-sm px-3 py-2 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                className={dateInputClass}
                 value={formData.dateOfLastReport}
                 onChange={(e) => setFormData({ ...formData, dateOfLastReport: e.target.value })}
               />
@@ -460,16 +493,14 @@ const LegalRegisterList = () => {
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                      setPermitDocumentFile(file);
-                    }
+                    if (file) setPermitDocumentFile(file);
                   }}
                 />
                 <div className="flex items-center space-x-2">
                   <button
                     type="button"
                     onClick={() => permitDocumentRef.current?.click()}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
                   >
                     <FiUpload className="mr-2" />
                     Choose File
@@ -483,11 +514,9 @@ const LegalRegisterList = () => {
                       onClick={() => {
                         setPermitDocumentFile(null);
                         setFormData({ ...formData, permitDocument: '' });
-                        if (permitDocumentRef.current) {
-                          permitDocumentRef.current.value = '';
-                        }
+                        if (permitDocumentRef.current) permitDocumentRef.current.value = '';
                       }}
-                      className="text-red-500 hover:text-red-700"
+                      className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                       title="Remove file"
                     >
                       <FiX />
@@ -518,16 +547,14 @@ const LegalRegisterList = () => {
                   className="hidden"
                   onChange={(e) => {
                     const file = e.target.files[0];
-                    if (file) {
-                      setComplianceReportFile(file);
-                    }
+                    if (file) setComplianceReportFile(file);
                   }}
                 />
                 <div className="flex items-center space-x-2">
                   <button
                     type="button"
                     onClick={() => complianceReportRef.current?.click()}
-                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-blue-500"
+                    className="inline-flex items-center px-4 py-2 border border-gray-300 rounded-lg shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-emerald-500 transition-colors"
                   >
                     <FiUpload className="mr-2" />
                     Choose File
@@ -541,11 +568,9 @@ const LegalRegisterList = () => {
                       onClick={() => {
                         setComplianceReportFile(null);
                         setFormData({ ...formData, complianceReport: '' });
-                        if (complianceReportRef.current) {
-                          complianceReportRef.current.value = '';
-                        }
+                        if (complianceReportRef.current) complianceReportRef.current.value = '';
                       }}
-                      className="text-red-500 hover:text-red-700"
+                      className="p-1 text-red-500 hover:text-red-700 hover:bg-red-50 rounded transition-colors"
                       title="Remove file"
                     >
                       <FiX />

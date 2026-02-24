@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { FiEye, FiEyeOff } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -50,8 +50,8 @@ const Login = () => {
       <div className="absolute -bottom-8 left-20 w-72 h-72 bg-teal-200 rounded-full mix-blend-multiply filter blur-xl opacity-30 animate-blob animation-delay-4000"></div>
 
       <div className="max-w-md w-full relative z-10">
-        <div className="bg-white/90 backdrop-blur-md p-12 rounded-3xl shadow-2xl border border-green-100">
-          <div className="text-center mb-10">
+        <div className="bg-white/90 backdrop-blur-md p-8 sm:p-10 rounded-3xl shadow-2xl border border-green-100">
+          <div className="text-center mb-8">
             <div className="inline-block p-4 bg-gradient-to-br from-green-500 to-emerald-600 rounded-3xl mb-6 shadow-lg">
               <span className="text-5xl">🌍</span>
             </div>
@@ -62,85 +62,85 @@ const Login = () => {
             <p className="text-gray-600 text-sm">Sign in to manage your permits and compliance</p>
           </div>
 
-            <form className="space-y-5" onSubmit={onSubmit}>
-              <div>
-                <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
-                  📧 Email Address
+          <form className="space-y-5" onSubmit={onSubmit}>
+            <div>
+              <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                Email Address
+              </label>
+              <input
+                id="email"
+                name="email"
+                type="email"
+                autoComplete="email"
+                required
+                className="appearance-none block w-full px-4 py-3 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200 bg-white/50"
+                placeholder="your.email@example.com"
+                value={email}
+                onChange={onChange}
+              />
+            </div>
+
+            <div>
+              <div className="flex items-center justify-between mb-2">
+                <label htmlFor="password" className="block text-sm font-semibold text-gray-700">
+                  Password
                 </label>
+                <Link to="/forgot-password" className="text-xs font-medium text-emerald-600 hover:text-emerald-700 transition-colors">
+                  Forgot password?
+                </Link>
+              </div>
+              <div className="relative">
                 <input
-                  id="email"
-                  name="email"
-                  type="email"
-                  autoComplete="email"
+                  id="password"
+                  name="password"
+                  type={showPassword ? 'text' : 'password'}
+                  autoComplete="current-password"
                   required
-                  className="appearance-none block w-full px-4 py-3 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
-                  placeholder="your.email@example.com"
-                  value={email}
+                  className="appearance-none block w-full px-4 py-3 pr-12 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition duration-200 bg-white/50"
+                  placeholder="Enter your password"
+                  value={password}
                   onChange={onChange}
                 />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 focus:outline-none"
+                >
+                  {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
+                </button>
               </div>
+            </div>
 
-              <div>
-                <label htmlFor="password" className="block text-sm font-semibold text-gray-700 mb-2">
-                  🔑 Password
-                </label>
-                <div className="relative">
-                  <input
-                    id="password"
-                    name="password"
-                    type={showPassword ? 'text' : 'password'}
-                    autoComplete="current-password"
-                    required
-                    className="appearance-none block w-full px-4 py-3 pr-12 border border-green-200 rounded-xl placeholder-gray-400 text-gray-900 focus:outline-none focus:ring-2 focus:ring-green-500 focus:border-transparent transition duration-200 bg-white/50"
-                    placeholder="Enter your password"
-                    value={password}
-                    onChange={onChange}
-                  />
-                  <button
-                    type="button"
-                    onClick={() => setShowPassword(!showPassword)}
-                    className="absolute inset-y-0 right-0 flex items-center pr-4 text-gray-500 hover:text-gray-700 focus:outline-none"
-                  >
-                    {showPassword ? <FiEyeOff size={20} /> : <FiEye size={20} />}
-                  </button>
-                </div>
-              </div>
+            <button
+              type="submit"
+              disabled={loading}
+              className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
+            >
+              {loading ? (
+                <>
+                  <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                  </svg>
+                  Signing in...
+                </>
+              ) : (
+                <>
+                  <span>Sign in</span>
+                  <FiArrowRight className="ml-2 h-5 w-5" />
+                </>
+              )}
+            </button>
 
-              <button
-                type="submit"
-                disabled={loading}
-                className="w-full flex justify-center items-center py-3.5 px-4 border border-transparent text-base font-semibold rounded-xl text-white bg-gradient-to-r from-green-600 to-emerald-600 hover:from-green-700 hover:to-emerald-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 disabled:opacity-50 disabled:cursor-not-allowed transition-all duration-200 shadow-lg hover:shadow-xl transform hover:-translate-y-0.5"
-              >
-                {loading ? (
-                  <>
-                    <svg className="animate-spin -ml-1 mr-3 h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                    </svg>
-                    Signing in...
-                  </>
-                ) : (
-                  <>
-                    <span>Sign in</span>
-                    <span className="ml-2">→</span>
-                  </>
-                )}
-              </button>
-
-              <div className="text-center pt-4 space-y-2">
-                <p className="text-sm text-gray-600">
-                  <Link to="/forgot-password" className="font-semibold text-green-600 hover:text-green-700 transition-colors">
-                    Forgot your password?
-                  </Link>
-                </p>
-                <p className="text-sm text-gray-600">
-                  Don't have an account?{' '}
-                  <Link to="/register" className="font-semibold text-green-600 hover:text-green-700 transition-colors">
-                    Create one now
-                  </Link>
-                </p>
-              </div>
-            </form>
+            <div className="text-center pt-2">
+              <p className="text-sm text-gray-600">
+                Don't have an account?{' '}
+                <Link to="/register" className="font-semibold text-green-600 hover:text-green-700 transition-colors">
+                  Create one now
+                </Link>
+              </p>
+            </div>
+          </form>
 
           <div className="mt-8 pt-6 border-t border-green-100">
             <p className="text-xs text-center text-gray-500 italic">

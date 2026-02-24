@@ -5,22 +5,31 @@ import Loader from '../common/Loader';
 import { formatDate, getStatusBadgeClass } from '../../utils/dateHelpers';
 import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
-import { FiDownload, FiFileText, FiArchive } from 'react-icons/fi';
+import { FiDownload, FiFileText, FiArchive, FiSearch } from 'react-icons/fi';
 
 const ArchivedPermits = () => {
   const [registers, setRegisters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
+  const [debouncedSearch, setDebouncedSearch] = useState('');
+
+  // Debounce search input by 300ms
+  useEffect(() => {
+    const timer = setTimeout(() => {
+      setDebouncedSearch(searchTerm);
+    }, 300);
+    return () => clearTimeout(timer);
+  }, [searchTerm]);
 
   useEffect(() => {
     fetchArchivedRegisters();
-  }, [searchTerm]);
+  }, [debouncedSearch]);
 
   const fetchArchivedRegisters = async () => {
     setLoading(true);
     try {
       const params = {};
-      if (searchTerm) params.search = searchTerm;
+      if (debouncedSearch) params.search = debouncedSearch;
 
       const response = await legalRegisterService.getArchived(params);
       if (response.success) {
@@ -36,7 +45,7 @@ const ArchivedPermits = () => {
 
   const handleExportExcel = async () => {
     try {
-      await exportService.exportToExcel({ search: searchTerm, archived: true });
+      await exportService.exportToExcel({ search: debouncedSearch, archived: true });
       toast.success('Excel file downloaded successfully');
     } catch (error) {
       logger.error('Error exporting to Excel:', error);
@@ -46,7 +55,7 @@ const ArchivedPermits = () => {
 
   const handleExportPDF = async () => {
     try {
-      await exportService.exportToPDF({ search: searchTerm, archived: true });
+      await exportService.exportToPDF({ search: debouncedSearch, archived: true });
       toast.success('PDF file downloaded successfully');
     } catch (error) {
       logger.error('Error exporting to PDF:', error);
@@ -57,39 +66,37 @@ const ArchivedPermits = () => {
   return (
     <div className="space-y-6">
       {/* Header */}
-      <div className="flex justify-between items-center">
-        <div className="flex items-center">
-          <FiArchive className="h-8 w-8 text-gray-600 mr-3" />
-          <div>
-            <h1 className="text-2xl font-bold text-gray-900">Archived Permits</h1>
-            <p className="text-sm text-gray-500 mt-1">Expired permits that have been automatically archived</p>
-          </div>
-        </div>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Archived Permits</h1>
+        <p className="text-sm text-gray-500 mt-1">Expired permits that have been automatically archived</p>
       </div>
 
       {/* Search and Export */}
       <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap gap-3 justify-between items-center">
-        <input
-          type="text"
-          placeholder="Search archived permits..."
-          className="border border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
-          value={searchTerm}
-          onChange={(e) => setSearchTerm(e.target.value)}
-        />
+        <div className="relative flex-1 min-w-0">
+          <FiSearch className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-gray-400 pointer-events-none" />
+          <input
+            type="text"
+            placeholder="Search archived permits..."
+            className="border border-gray-300 rounded-lg pl-9 pr-4 py-2 w-full focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+        </div>
         <div className="flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={handleExportExcel}
             className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
           >
             <FiDownload className="mr-1.5 h-4 w-4" />
-            Excel
+            Export Excel
           </button>
           <button
             onClick={handleExportPDF}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
           >
             <FiFileText className="mr-1.5 h-4 w-4" />
-            PDF
+            Export PDF
           </button>
         </div>
       </div>
