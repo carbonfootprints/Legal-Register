@@ -15,18 +15,23 @@ const Navbar = ({ toggleSidebar }) => {
 
   return (
     <nav className="bg-white shadow-sm border-b border-gray-200">
-      <div className="px-4 sm:px-6 lg:px-8">
+      <div className="px-4 sm:px-6">
         <div className="flex justify-between h-16">
           <div className="flex items-center">
             <button
               onClick={toggleSidebar}
-              className="text-gray-500 hover:text-gray-700 focus:outline-none lg:hidden mr-2"
+              className="p-2 rounded-lg text-gray-500 hover:text-gray-700 hover:bg-gray-100 focus:outline-none lg:hidden mr-1"
             >
-              <FiMenu className="h-6 w-6" />
+              <FiMenu className="h-5 w-5" />
             </button>
-            <h1 className="text-xl font-semibold text-gray-900">
-              {user?.companyName || 'Legal Register Management'}
-            </h1>
+            <div className="flex items-center">
+              <span className="text-base font-semibold text-gray-800 hidden sm:block">
+                {user?.companyName || 'Legal Register Management'}
+              </span>
+              <span className="text-base font-semibold text-gray-800 sm:hidden">
+                {user?.companyName ? user.companyName.split(' ')[0] : 'Legal Register'}
+              </span>
+            </div>
           </div>
 
           <div className="flex items-center">
@@ -35,24 +40,27 @@ const Navbar = ({ toggleSidebar }) => {
                 onClick={() => setShowUserMenu(!showUserMenu)}
                 className="flex items-center text-sm focus:outline-none"
               >
-                <div className="flex items-center bg-gray-100 rounded-full px-3 py-2 hover:bg-gray-200">
-                  <FiUser className="h-5 w-5 text-gray-600 mr-2" />
-                  <span className="text-gray-700 font-medium">{user?.name}</span>
+                <div className="flex items-center bg-emerald-50 border border-emerald-100 rounded-full pl-2 pr-3 py-1.5 hover:bg-emerald-100 transition-colors">
+                  <div className="w-7 h-7 bg-gradient-to-br from-emerald-400 to-green-500 rounded-full flex items-center justify-center mr-2 shadow-sm">
+                    <FiUser className="h-3.5 w-3.5 text-white" />
+                  </div>
+                  <span className="text-gray-700 font-medium text-sm hidden sm:block">{user?.name}</span>
                 </div>
               </button>
 
               {showUserMenu && (
-                <div className="absolute right-0 mt-2 w-48 bg-white rounded-md shadow-lg py-1 z-50">
-                  <div className="px-4 py-2 border-b">
-                    <p className="text-sm text-gray-500">Signed in as</p>
-                    <p className="text-sm font-medium text-gray-900 truncate">{user?.email}</p>
+                <div className="absolute right-0 mt-2 w-52 bg-white rounded-xl shadow-lg border border-gray-100 py-1 z-50">
+                  <div className="px-4 py-3 border-b border-gray-100">
+                    <p className="text-xs text-gray-400 uppercase tracking-wide font-medium mb-0.5">Signed in as</p>
+                    <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
+                    <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                   </div>
                   <button
                     onClick={handleLogout}
-                    className="flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-gray-100"
+                    className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"
                   >
-                    <FiLogOut className="mr-2" />
-                    Logout
+                    <FiLogOut className="mr-2 h-4 w-4" />
+                    Sign Out
                   </button>
                 </div>
               )}

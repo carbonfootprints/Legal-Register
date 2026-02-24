@@ -3,7 +3,7 @@ import { FiHome, FiFileText, FiArchive, FiX } from 'react-icons/fi';
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
   const navLinks = [
-    { to: '/dashboard', icon: FiHome, label: 'Dashboard of legal registers' },
+    { to: '/dashboard', icon: FiHome, label: 'Dashboard' },
     { to: '/legal-registers', icon: FiFileText, label: 'Legal Registers' },
     { to: '/archived-permits', icon: FiArchive, label: 'Archived Permits' },
   ];
@@ -13,48 +13,59 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
       {/* Mobile overlay */}
       {isOpen && (
         <div
-          className="fixed inset-0 bg-gray-600 bg-opacity-75 z-40 lg:hidden"
+          className="fixed inset-0 bg-gray-900 bg-opacity-60 z-40 lg:hidden"
           onClick={closeSidebar}
         ></div>
       )}
 
       {/* Sidebar */}
       <div
-        className={`fixed inset-y-0 left-0 z-50 w-64 bg-white shadow-lg transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
+        className={`fixed inset-y-0 left-0 z-50 w-64 bg-slate-800 shadow-xl transform transition-transform duration-300 ease-in-out lg:relative lg:translate-x-0 ${
           isOpen ? 'translate-x-0' : '-translate-x-full'
         }`}
       >
-        <div className="flex items-center justify-between h-16 px-4 border-b lg:hidden">
-          <h2 className="text-lg font-semibold">Menu</h2>
+        {/* Brand header */}
+        <div className="flex items-center justify-between h-16 px-5 border-b border-slate-700">
+          <div className="flex items-center space-x-2">
+            <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg flex items-center justify-center shadow">
+              <FiFileText className="h-4 w-4 text-white" />
+            </div>
+            <span className="text-white font-semibold text-sm tracking-wide">Legal Register</span>
+          </div>
           <button
             onClick={closeSidebar}
-            className="text-gray-500 hover:text-gray-700 focus:outline-none"
+            className="text-slate-400 hover:text-white focus:outline-none lg:hidden"
           >
-            <FiX className="h-6 w-6" />
+            <FiX className="h-5 w-5" />
           </button>
         </div>
 
-        <nav className="mt-6">
-          <div className="px-4 space-y-2">
+        <nav className="mt-4">
+          <div className="px-3 space-y-1">
             {navLinks.map((link) => (
               <NavLink
                 key={link.to}
                 to={link.to}
                 onClick={closeSidebar}
                 className={({ isActive }) =>
-                  `flex items-center px-4 py-3 text-sm font-medium rounded-lg transition-colors ${
+                  `flex items-center px-3 py-2.5 text-sm font-medium rounded-lg transition-all duration-150 ${
                     isActive
-                      ? 'bg-blue-50 text-blue-700'
-                      : 'text-gray-700 hover:bg-gray-100'
+                      ? 'bg-emerald-500 text-white shadow-md'
+                      : 'text-slate-300 hover:bg-slate-700 hover:text-white'
                   }`
                 }
               >
-                <link.icon className="mr-3 h-5 w-5" />
+                <link.icon className="mr-3 h-4.5 w-4.5 flex-shrink-0" />
                 {link.label}
               </NavLink>
             ))}
           </div>
         </nav>
+
+        {/* Bottom version tag */}
+        <div className="absolute bottom-4 left-0 right-0 px-5">
+          <p className="text-xs text-slate-500 text-center">PCF Legal Register v1.0</p>
+        </div>
       </div>
     </>
   );

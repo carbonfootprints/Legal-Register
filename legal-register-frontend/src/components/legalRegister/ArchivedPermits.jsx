@@ -68,40 +68,50 @@ const ArchivedPermits = () => {
       </div>
 
       {/* Search and Export */}
-      <div className="bg-white p-4 rounded-lg shadow flex justify-between items-center">
+      <div className="bg-white p-4 rounded-xl shadow-sm border border-gray-100 flex flex-wrap gap-3 justify-between items-center">
         <input
           type="text"
           placeholder="Search archived permits..."
-          className="border border-gray-300 rounded-md px-4 py-2 w-96"
+          className="border border-gray-300 rounded-lg px-4 py-2 flex-1 min-w-0 focus:outline-none focus:ring-2 focus:ring-emerald-400 focus:border-transparent"
           value={searchTerm}
           onChange={(e) => setSearchTerm(e.target.value)}
         />
-        <div className="flex space-x-2">
+        <div className="flex items-center space-x-2 flex-shrink-0">
           <button
             onClick={handleExportExcel}
-            className="bg-green-600 hover:bg-green-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
           >
-            <FiDownload className="mr-2" />
+            <FiDownload className="mr-1.5 h-4 w-4" />
             Excel
           </button>
           <button
             onClick={handleExportPDF}
-            className="bg-red-600 hover:bg-red-700 text-white px-4 py-2 rounded-md flex items-center"
+            className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
           >
-            <FiFileText className="mr-2" />
+            <FiFileText className="mr-1.5 h-4 w-4" />
             PDF
           </button>
         </div>
       </div>
 
       {/* Table */}
-      <div className="bg-white shadow rounded-lg overflow-hidden">
+      <div className="bg-white shadow-sm rounded-xl border border-gray-100 overflow-hidden">
+        {!loading && registers.length > 0 && (
+          <div className="px-6 py-3 border-b border-gray-100 bg-gray-50">
+            <span className="text-sm text-gray-500">
+              Showing <span className="font-semibold text-gray-700">{registers.length}</span> archived {registers.length === 1 ? 'permit' : 'permits'}
+            </span>
+          </div>
+        )}
         {loading ? (
           <Loader />
         ) : registers.length === 0 ? (
-          <div className="text-center py-12">
-            <FiArchive className="mx-auto h-12 w-12 text-gray-400" />
-            <p className="text-gray-500 mt-4">No archived permits found</p>
+          <div className="text-center py-14">
+            <div className="w-14 h-14 bg-gray-100 rounded-full flex items-center justify-center mx-auto mb-3">
+              <FiArchive className="h-7 w-7 text-gray-400" />
+            </div>
+            <p className="text-gray-600 font-medium">No archived permits found</p>
+            {searchTerm && <p className="text-sm text-gray-400 mt-1">Try adjusting your search query</p>}
           </div>
         ) : (
           <div className="overflow-x-auto">

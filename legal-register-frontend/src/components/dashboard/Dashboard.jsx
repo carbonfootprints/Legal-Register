@@ -40,88 +40,98 @@ const Dashboard = () => {
     return <Loader />;
   }
 
+  const statCards = [
+    {
+      label: 'Total Permits',
+      value: stats?.total || 0,
+      gradient: 'from-blue-500 to-blue-600',
+      bg: 'bg-blue-50',
+      border: 'border-blue-100',
+      textColor: 'text-blue-700',
+      icon: (
+        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Active',
+      value: stats?.active || 0,
+      gradient: 'from-emerald-500 to-green-500',
+      bg: 'bg-emerald-50',
+      border: 'border-emerald-100',
+      textColor: 'text-emerald-700',
+      icon: (
+        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Expiring Soon',
+      value: stats?.expiringSoon || 0,
+      gradient: 'from-amber-400 to-yellow-500',
+      bg: 'bg-amber-50',
+      border: 'border-amber-100',
+      textColor: 'text-amber-700',
+      icon: (
+        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
+        </svg>
+      ),
+    },
+    {
+      label: 'Overdue',
+      value: stats?.overdue || 0,
+      gradient: 'from-red-500 to-rose-500',
+      bg: 'bg-red-50',
+      border: 'border-red-100',
+      textColor: 'text-red-700',
+      icon: (
+        <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+          <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
+        </svg>
+      ),
+    },
+  ];
+
   return (
     <div className="space-y-6">
-      <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+      <div>
+        <h1 className="text-2xl font-bold text-gray-900">Dashboard</h1>
+        <p className="text-sm text-gray-500 mt-1">Overview of your permits and compliance status</p>
+      </div>
 
       {/* Statistics Cards */}
       <div className="grid grid-cols-1 gap-5 sm:grid-cols-2 lg:grid-cols-4">
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-blue-500 rounded-md p-3">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Total Permits</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats?.total || 0}</dd>
-                </dl>
+        {statCards.map((card) => (
+          <div key={card.label} className={`bg-white overflow-hidden shadow-sm rounded-xl border ${card.border}`}>
+            <div className="p-5">
+              <div className="flex items-center justify-between">
+                <div>
+                  <p className="text-sm font-medium text-gray-500">{card.label}</p>
+                  <p className="text-3xl font-bold text-gray-900 mt-1">{card.value}</p>
+                </div>
+                <div className={`flex-shrink-0 bg-gradient-to-br ${card.gradient} rounded-xl p-3 shadow-sm`}>
+                  {card.icon}
+                </div>
               </div>
             </div>
+            <div className={`h-1 bg-gradient-to-r ${card.gradient}`} />
           </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-green-500 rounded-md p-3">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M5 13l4 4L19 7" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Active</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats?.active || 0}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-yellow-500 rounded-md p-3">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M12 8v4m0 4h.01M21 12a9 9 0 11-18 0 9 9 0 0118 0z" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Expiring Soon</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats?.expiringSoon || 0}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
-
-        <div className="bg-white overflow-hidden shadow rounded-lg">
-          <div className="p-5">
-            <div className="flex items-center">
-              <div className="flex-shrink-0 bg-red-500 rounded-md p-3">
-                <svg className="h-6 w-6 text-white" fill="none" viewBox="0 0 24 24" stroke="currentColor">
-                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </div>
-              <div className="ml-5 w-0 flex-1">
-                <dl>
-                  <dt className="text-sm font-medium text-gray-500 truncate">Overdue</dt>
-                  <dd className="text-2xl font-semibold text-gray-900">{stats?.overdue || 0}</dd>
-                </dl>
-              </div>
-            </div>
-          </div>
-        </div>
+        ))}
       </div>
 
       {/* Expiry Alerts */}
-      <div className="bg-white shadow rounded-lg p-6">
-        <h2 className="text-lg font-semibold text-gray-900 mb-4">Renewal Alerts</h2>
+      <div className="bg-white shadow-sm rounded-xl border border-gray-100 p-6">
+        <div className="flex items-center justify-between mb-5">
+          <h2 className="text-lg font-semibold text-gray-900">Renewal Alerts</h2>
+          {(alerts?.dueToday?.length || alerts?.dueTwoDays?.length || alerts?.dueWeek?.length || alerts?.expired?.length) ? (
+            <span className="text-xs bg-red-100 text-red-700 font-medium px-2.5 py-1 rounded-full">
+              {(alerts?.dueToday?.length || 0) + (alerts?.dueTwoDays?.length || 0) + (alerts?.dueWeek?.length || 0) + (alerts?.expired?.length || 0)} items need attention
+            </span>
+          ) : null}
+        </div>
 
         {/* Due Today */}
         {alerts?.dueToday && alerts.dueToday.length > 0 && (
@@ -247,7 +257,15 @@ const Dashboard = () => {
           !alerts?.dueTwoDays?.length &&
           !alerts?.dueWeek?.length &&
           !alerts?.expired?.length && (
-            <p className="text-gray-500 text-center py-8">No renewal alerts at the moment</p>
+            <div className="text-center py-10">
+              <div className="w-14 h-14 bg-emerald-50 rounded-full flex items-center justify-center mx-auto mb-3">
+                <svg className="h-7 w-7 text-emerald-500" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                  <path strokeLinecap="round" strokeLinejoin="round" strokeWidth={2} d="M9 12l2 2 4-4m6 2a9 9 0 11-18 0 9 9 0 0118 0z" />
+                </svg>
+              </div>
+              <p className="text-gray-700 font-medium">All permits are up to date</p>
+              <p className="text-sm text-gray-400 mt-1">No renewal alerts at the moment</p>
+            </div>
           )}
       </div>
     </div>
