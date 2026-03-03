@@ -101,6 +101,7 @@ export const register = async (req, res) => {
           name: user.name,
           email: user.email,
           role: user.role,
+          companyName: user.companyName,
         }
       });
     }
@@ -167,6 +168,7 @@ export const login = async (req, res) => {
         name: user.name,
         email: user.email,
         role: user.role,
+        companyName: user.companyName,
       }
     });
   } catch (error) {
