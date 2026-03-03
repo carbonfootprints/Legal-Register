@@ -1,7 +1,9 @@
 import { NavLink } from 'react-router-dom';
 import { FiHome, FiFileText, FiArchive, FiX } from 'react-icons/fi';
+import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
+  const { user } = useAuth();
   const navLinks = [
     { to: '/dashboard', icon: FiHome, label: 'Dashboard' },
     { to: '/legal-registers', icon: FiFileText, label: 'Legal Registers' },
@@ -30,7 +32,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
             <div className="w-8 h-8 bg-gradient-to-br from-emerald-400 to-green-500 rounded-lg flex items-center justify-center shadow">
               <FiFileText className="h-4 w-4 text-white" />
             </div>
-            <span className="text-white font-semibold text-sm tracking-wide">Legal Register</span>
+            <span className="text-white font-semibold text-sm tracking-wide">{user?.companyName || 'Legal Register'}</span>
           </div>
           <button
             onClick={closeSidebar}
