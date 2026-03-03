@@ -1,2 +1,3 @@
-nul
+.env
 legal-register-backend/.env
+legal-register-frontend/.env
