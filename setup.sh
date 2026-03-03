@@ -80,20 +80,20 @@ print_done "Nginx installed and started."
 # ============================================================
 # STEP 5 — Install MongoDB 7
 # ============================================================
-print_step "5/10" "Installing MongoDB 7..."
-curl -fsSL https://www.mongodb.org/static/pgp/server-7.0.asc | \
-  gpg -o /usr/share/keyrings/mongodb-server-7.0.gpg --dearmor
+print_step "5/10" "Installing MongoDB 8 (Ubuntu 24.04)..."
+curl -fsSL https://www.mongodb.org/static/pgp/server-8.0.asc | \
+  gpg -o /usr/share/keyrings/mongodb-server-8.0.gpg --dearmor
 
-echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-7.0.gpg ] \
-https://repo.mongodb.org/apt/ubuntu jammy/mongodb-org/7.0 multiverse" | \
-  tee /etc/apt/sources.list.d/mongodb-org-7.0.list
+echo "deb [ arch=amd64,arm64 signed-by=/usr/share/keyrings/mongodb-server-8.0.gpg ] \
+https://repo.mongodb.org/apt/ubuntu noble/mongodb-org/8.0 multiverse" | \
+  tee /etc/apt/sources.list.d/mongodb-org-8.0.list
 
 apt update
 apt install -y mongodb-org
 systemctl enable mongod
 systemctl start mongod
 sleep 3  # Wait for MongoDB to start
-print_done "MongoDB 7 installed and started."
+print_done "MongoDB 8 installed and started."
 
 # ============================================================
 # STEP 6 — Secure MongoDB with authentication
