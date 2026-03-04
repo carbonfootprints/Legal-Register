@@ -35,25 +35,29 @@ apt install -y certbot python3-certbot-nginx
 print_done "Certbot installed."
 
 # ============================================================
-# STEP 2 — Update Nginx config to use domain
+# STEP 2 — Restore HTTP nginx config so Certbot can verify domain
 # ============================================================
-print_step "2/5" "Updating Nginx config for domain..."
-cp "$APP_DIR/nginx-ssl.conf" /etc/nginx/sites-available/legal-register
+print_step "2/5" "Preparing Nginx for domain verification..."
+cp "$APP_DIR/nginx.conf" /etc/nginx/sites-available/legal-register
 nginx -t && systemctl reload nginx
-print_done "Nginx updated for $DOMAIN."
+print_done "Nginx ready for domain verification."
 
 # ============================================================
-# STEP 3 — Obtain SSL certificate
+# STEP 3 — Obtain SSL certificate (certs don't exist yet)
 # ============================================================
 print_step "3/5" "Obtaining SSL certificate from Let's Encrypt..."
-certbot --nginx \
+certbot certonly --nginx \
   -d "$DOMAIN" \
   -d "www.$DOMAIN" \
   --non-interactive \
   --agree-tos \
-  --email "$SSL_EMAIL" \
-  --redirect
-print_done "SSL certificate installed."
+  --email "$SSL_EMAIL"
+print_done "SSL certificate obtained."
+
+# Now switch to the full SSL nginx config
+cp "$APP_DIR/nginx-ssl.conf" /etc/nginx/sites-available/legal-register
+nginx -t && systemctl reload nginx
+print_done "Nginx switched to HTTPS config."
 
 # ============================================================
 # STEP 4 — Update .env files to use HTTPS domain
