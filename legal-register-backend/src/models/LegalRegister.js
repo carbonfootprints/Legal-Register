@@ -30,9 +30,15 @@ const legalRegisterSchema = new mongoose.Schema({
   dueDateForRenewal: {
     type: Date
   },
+  noExpiry: {
+    type: Boolean,
+    default: false
+  },
   reportingFrequency: {
     type: String,
-    enum: ['N/A', 'Monthly', 'Quarterly', 'Half-Yearly', 'Yearly once', 'Two years', 'Three years once', 'Four years', 'Five years', 'As Required'],
+    // Old values kept for backward compatibility with existing records
+    enum: ['N/A', 'Monthly', 'Quarterly', 'Half-Yearly', 'Annually', 'Once in two years', 'Once in three years', 'Once in four years', 'Once in five years', 'As Required',
+           'Yearly once', 'Two years', 'Three years once', 'Four years', 'Five years'],
     default: 'N/A'
   },
   dateOfLastReport: {
@@ -99,8 +105,14 @@ legalRegisterSchema.pre('save', async function(next) {
     this.archivedAt = new Date();
   }
 
-  // Check if permit has expired based on dateOfExpiry
-  if (this.dateOfExpiry) {
+  // If no expiry, clear expiry-related fields
+  if (this.noExpiry) {
+    this.dateOfExpiry = undefined;
+    this.dueDateForRenewal = undefined;
+  }
+
+  // Check if permit has expired based on dateOfExpiry (skip if no expiry)
+  if (!this.noExpiry && this.dateOfExpiry) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     const expiryDate = new Date(this.dateOfExpiry);

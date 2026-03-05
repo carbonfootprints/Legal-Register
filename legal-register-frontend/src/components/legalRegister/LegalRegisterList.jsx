@@ -30,6 +30,7 @@ const LegalRegisterList = () => {
     documentNo: '',
     issuingAuthority: '',
     dateOfIssue: '',
+    noExpiry: false,
     dateOfExpiry: '',
     dueDateForRenewal: '',
     reportingFrequency: 'N/A',
@@ -90,6 +91,7 @@ const LegalRegisterList = () => {
         documentNo: item.documentNo,
         issuingAuthority: item.issuingAuthority,
         dateOfIssue: formatDateForInput(item.dateOfIssue),
+        noExpiry: item.noExpiry || false,
         dateOfExpiry: formatDateForInput(item.dateOfExpiry),
         dueDateForRenewal: formatDateForInput(item.dueDateForRenewal),
         reportingFrequency: item.reportingFrequency || 'N/A',
@@ -106,6 +108,7 @@ const LegalRegisterList = () => {
         documentNo: '',
         issuingAuthority: '',
         dateOfIssue: '',
+        noExpiry: false,
         dateOfExpiry: '',
         dueDateForRenewal: '',
         reportingFrequency: 'N/A',
@@ -133,8 +136,8 @@ const LegalRegisterList = () => {
     try {
       const submitData = {
         ...formData,
-        dateOfExpiry: formData.dateOfExpiry || null,
-        dueDateForRenewal: formData.dueDateForRenewal || null,
+        dateOfExpiry: formData.noExpiry ? null : (formData.dateOfExpiry || null),
+        dueDateForRenewal: formData.noExpiry ? null : (formData.dueDateForRenewal || null),
         dateOfLastReport: formData.dateOfLastReport || null,
       };
 
@@ -303,11 +306,16 @@ const LegalRegisterList = () => {
                       <td className="px-6 py-4 text-sm text-gray-900">{register.permit}</td>
                       <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{register.documentNo}</td>
                       <td className="px-6 py-4 text-sm text-gray-900">{register.issuingAuthority}</td>
-                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">{formatDate(register.dueDateForRenewal)}</td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                        {register.noExpiry
+                          ? <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-700">No Expiry</span>
+                          : formatDate(register.dueDateForRenewal)}
+                      </td>
                       <td className="px-6 py-4 whitespace-nowrap">
-                        <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${urgencyBadge.class}`}>
-                          {urgencyBadge.label}
-                        </span>
+                        {register.noExpiry
+                          ? <span className="px-2 inline-flex text-xs leading-5 font-semibold rounded-full bg-blue-100 text-blue-700">No Expiry</span>
+                          : <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${urgencyBadge.class}`}>{urgencyBadge.label}</span>
+                        }
                       </td>
                       <td className="px-6 py-4 whitespace-nowrap">
                         <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(register.status)}`}>
@@ -435,12 +443,29 @@ const LegalRegisterList = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Expiry</label>
+              <div className="flex items-center justify-between mb-1">
+                <label className="block text-sm font-medium text-gray-700">Date of Expiry</label>
+                <label className="flex items-center gap-1.5 cursor-pointer select-none">
+                  <input
+                    type="checkbox"
+                    checked={formData.noExpiry}
+                    onChange={(e) => setFormData({
+                      ...formData,
+                      noExpiry: e.target.checked,
+                      dateOfExpiry: '',
+                      dueDateForRenewal: ''
+                    })}
+                    className="h-3.5 w-3.5 rounded border-gray-300 text-emerald-600 focus:ring-emerald-500"
+                  />
+                  <span className="text-xs text-gray-500 font-medium">No Expiry</span>
+                </label>
+              </div>
               <input
                 type="date"
-                className={dateInputClass}
-                value={formData.dateOfExpiry}
+                className={`${dateInputClass} ${formData.noExpiry ? 'bg-gray-100 cursor-not-allowed text-gray-400' : ''}`}
+                value={formData.noExpiry ? '' : formData.dateOfExpiry}
                 onChange={(e) => setFormData({ ...formData, dateOfExpiry: e.target.value })}
+                disabled={formData.noExpiry}
               />
             </div>
 
@@ -448,9 +473,10 @@ const LegalRegisterList = () => {
               <label className="block text-sm font-medium text-gray-700 mb-1">Due Date for Renewal</label>
               <input
                 type="date"
-                className={dateInputClass}
-                value={formData.dueDateForRenewal}
+                className={`${dateInputClass} ${formData.noExpiry ? 'bg-gray-100 cursor-not-allowed text-gray-400' : ''}`}
+                value={formData.noExpiry ? '' : formData.dueDateForRenewal}
                 onChange={(e) => setFormData({ ...formData, dueDateForRenewal: e.target.value })}
+                disabled={formData.noExpiry}
               />
             </div>
 
@@ -465,11 +491,12 @@ const LegalRegisterList = () => {
                 <option value="Monthly">Monthly</option>
                 <option value="Quarterly">Quarterly</option>
                 <option value="Half-Yearly">Half-Yearly</option>
-                <option value="Yearly once">Yearly once</option>
-                <option value="Two years">Two years</option>
-                <option value="Three years once">Three years once</option>
-                <option value="Four years">Four years</option>
-                <option value="Five years">Five years</option>
+                <option value="Annually">Annually</option>
+                <option value="Once in two years">Once in two years</option>
+                <option value="Once in three years">Once in three years</option>
+                <option value="Once in four years">Once in four years</option>
+                <option value="Once in five years">Once in five years</option>
+                <option value="As Required">As Required</option>
               </select>
             </div>
 
