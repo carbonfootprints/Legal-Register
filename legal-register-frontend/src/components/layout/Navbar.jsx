@@ -1,12 +1,13 @@
 import { useState } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
-import { FiLogOut, FiUser, FiMenu } from 'react-icons/fi';
+import { FiLogOut, FiUser, FiMenu, FiEdit2 } from 'react-icons/fi';
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
   '/legal-registers': 'Legal Register',
   '/archived-permits': 'Archived Permits',
+  '/profile': 'Edit Profile',
 };
 
 const Navbar = ({ toggleSidebar }) => {
@@ -60,6 +61,13 @@ const Navbar = ({ toggleSidebar }) => {
                     <p className="text-sm font-semibold text-gray-900 truncate">{user?.name}</p>
                     <p className="text-xs text-gray-500 truncate">{user?.email}</p>
                   </div>
+                  <button
+                    onClick={() => { navigate('/profile'); setShowUserMenu(false); }}
+                    className="flex items-center w-full px-4 py-2.5 text-sm text-gray-700 hover:bg-gray-50 transition-colors"
+                  >
+                    <FiEdit2 className="mr-2 h-4 w-4" />
+                    Edit Profile
+                  </button>
                   <button
                     onClick={handleLogout}
                     className="flex items-center w-full px-4 py-2.5 text-sm text-red-600 hover:bg-red-50 transition-colors"

@@ -53,6 +53,21 @@ const authService = {
     return !!localStorage.getItem('user');
   },
 
+  // Update profile
+  updateProfile: async (data) => {
+    const response = await api.put('/auth/profile', data);
+    if (response.data.success) {
+      localStorage.setItem('user', JSON.stringify(response.data.data));
+    }
+    return response.data;
+  },
+
+  // Change password
+  changePassword: async (data) => {
+    const response = await api.put('/auth/change-password', data);
+    return response.data;
+  },
+
   // Forgot password - request reset email
   forgotPassword: async (email) => {
     const response = await api.post('/auth/forgot-password', { email });

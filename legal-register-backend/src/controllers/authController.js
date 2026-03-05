@@ -209,6 +209,79 @@ export const logout = async (req, res) => {
   });
 };
 
+// @desc    Update profile (name, email, company, doc control fields)
+// @route   PUT /api/auth/profile
+// @access  Private
+export const updateProfile = async (req, res) => {
+  try {
+    const { name, email, companyName, legalRegDocNo, legalRegRevNo, legalRegRevDate } = req.body;
+
+    const user = await User.findById(req.user._id);
+    if (!user) return res.status(404).json({ success: false, message: 'User not found' });
+
+    // Check email uniqueness if changed
+    if (email && email !== user.email) {
+      const exists = await User.findOne({ email });
+      if (exists) return res.status(400).json({ success: false, message: 'Email already in use' });
+      user.email = email;
+    }
+
+    if (name)           user.name           = name;
+    if (companyName)    user.companyName    = companyName;
+    if (legalRegDocNo  !== undefined) user.legalRegDocNo  = legalRegDocNo;
+    if (legalRegRevNo  !== undefined) user.legalRegRevNo  = legalRegRevNo;
+    if (legalRegRevDate !== undefined) user.legalRegRevDate = legalRegRevDate || null;
+
+    await user.save({ validateBeforeSave: false });
+
+    const data = {
+      _id: user._id,
+      name: user.name,
+      email: user.email,
+      role: user.role,
+      companyName: user.companyName,
+      legalRegDocNo: user.legalRegDocNo,
+      legalRegRevNo: user.legalRegRevNo,
+      legalRegRevDate: user.legalRegRevDate,
+    };
+
+    res.json({ success: true, data });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Change password
+// @route   PUT /api/auth/change-password
+// @access  Private
+export const changePassword = async (req, res) => {
+  try {
+    const { currentPassword, newPassword } = req.body;
+
+    if (!currentPassword || !newPassword) {
+      return res.status(400).json({ success: false, message: 'Please provide current and new password' });
+    }
+
+    const user = await User.findById(req.user._id).select('+password');
+    const isMatch = await user.comparePassword(currentPassword);
+    if (!isMatch) {
+      return res.status(400).json({ success: false, message: 'Current password is incorrect' });
+    }
+
+    const validation = validatePassword(newPassword);
+    if (!validation.isValid) {
+      return res.status(400).json({ success: false, message: validation.errors[0], errors: validation.errors });
+    }
+
+    user.password = newPassword;
+    await user.save();
+
+    res.json({ success: true, message: 'Password changed successfully' });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Forgot password - send reset email
 // @route   POST /api/auth/forgot-password
 // @access  Public

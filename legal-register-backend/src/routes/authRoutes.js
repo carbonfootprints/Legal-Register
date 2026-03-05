@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getMe, logout, forgotPassword, resetPassword } from '../controllers/authController.js';
+import { register, login, getMe, logout, forgotPassword, resetPassword, updateProfile, changePassword } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter.js';
 
@@ -153,6 +153,8 @@ router.get('/me', protect, getMe);
  *         description: Logged out successfully
  */
 router.post('/logout', protect, logout);
+router.put('/profile', protect, updateProfile);
+router.put('/change-password', protect, changePassword);
 
 /**
  * @swagger
