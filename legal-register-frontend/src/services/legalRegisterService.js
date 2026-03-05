@@ -50,6 +50,12 @@ const legalRegisterService = {
     const response = await api.get(`/legal-registers/archived?${queryString}`);
     return response.data;
   },
+
+  // Restore an archived record back to Active
+  restore: async (id) => {
+    const response = await api.put(`/legal-registers/${id}/restore`);
+    return response.data;
+  },
 };
 
 export default legalRegisterService;

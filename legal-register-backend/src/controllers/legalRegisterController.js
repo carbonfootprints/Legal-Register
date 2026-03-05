@@ -323,6 +323,30 @@ export const getStatistics = async (req, res) => {
   }
 };
 
+// @desc    Restore an archived legal register entry back to Active
+// @route   PUT /api/legal-registers/:id/restore
+// @access  Private
+export const restoreLegalRegister = async (req, res) => {
+  try {
+    const legalRegister = await LegalRegister.findOneAndUpdate(
+      { _id: req.params.id, createdBy: req.user._id, isArchived: true },
+      { status: 'Active', isArchived: false, archivedAt: null, updatedBy: req.user._id },
+      { new: true }
+    );
+
+    if (!legalRegister) {
+      return res.status(404).json({
+        success: false,
+        message: "Archived record not found",
+      });
+    }
+
+    res.json({ success: true, data: legalRegister });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
 // @desc    Get archived (expired) legal register entries
 // @route   GET /api/legal-registers/archived
 // @access  Private

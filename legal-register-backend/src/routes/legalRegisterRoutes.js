@@ -7,7 +7,8 @@ import {
   deleteLegalRegister,
   getExpiryAlerts,
   getStatistics,
-  getArchivedLegalRegisters
+  getArchivedLegalRegisters,
+  restoreLegalRegister
 } from '../controllers/legalRegisterController.js';
 import { protect } from '../middleware/auth.js';
 import CronService from '../services/cronService.js';
@@ -323,6 +324,8 @@ router.route('/')
  *       404:
  *         description: Legal register not found
  */
+router.put('/:id/restore', restoreLegalRegister);
+
 router.route('/:id')
   .get(getLegalRegisterById)
   .put(updateLegalRegister)
