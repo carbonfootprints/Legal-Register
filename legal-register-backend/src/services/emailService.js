@@ -251,6 +251,18 @@ class EmailService {
                 <td>Issuing Authority</td>
                 <td>${register.issuingAuthority}</td>
               </tr>
+              ${register.documentNumber ? `<tr>
+                <td>Document Number</td>
+                <td>${register.documentNumber}</td>
+              </tr>` : ''}
+              ${register.revisionNumber ? `<tr>
+                <td>Revision Number</td>
+                <td>${register.revisionNumber}</td>
+              </tr>` : ''}
+              ${register.revisionDate ? `<tr>
+                <td>Revision Date</td>
+                <td>${new Date(register.revisionDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</td>
+              </tr>` : ''}
               <tr>
                 <td>Due Date for Renewal</td>
                 <td><strong style="color: ${urgencyColor};">${new Date(register.dueDateForRenewal).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: 'numeric' })}</strong></td>

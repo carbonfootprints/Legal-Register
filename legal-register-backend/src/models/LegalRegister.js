@@ -20,6 +20,17 @@ const legalRegisterSchema = new mongoose.Schema({
     required: [true, 'Issuing authority is required'],
     trim: true
   },
+  documentNumber: {
+    type: String,
+    trim: true
+  },
+  revisionNumber: {
+    type: String,
+    trim: true
+  },
+  revisionDate: {
+    type: Date
+  },
   dateOfIssue: {
     type: Date,
     required: [true, 'Date of issue is required']

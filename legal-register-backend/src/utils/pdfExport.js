@@ -35,15 +35,18 @@ class PDFExport {
         const startX = 30;
 
         const columns = [
-          { key: 'slNo', header: 'SL', width: 30, align: 'center' },
-          { key: 'permit', header: 'Permit', width: 120, align: 'left' },
-          { key: 'documentNo', header: 'Ref. Number', width: 85, align: 'left' },
-          { key: 'issuingAuthority', header: 'Issuing Authority', width: 120, align: 'left' },
-          { key: 'dateOfIssue', header: 'Issue Date', width: 70, align: 'center' },
-          { key: 'dueDateForRenewal', header: 'Renewal Due', width: 70, align: 'center' },
-          { key: 'reportingFrequency', header: 'Frequency', width: 80, align: 'left' },
-          { key: 'responsibility', header: 'Resp.', width: 80, align: 'left' },
-          { key: 'status', header: 'Status', width: 65, align: 'center' }
+          { key: 'slNo',             header: 'SL',              width: 25,  align: 'center' },
+          { key: 'permit',           header: 'Permit',          width: 100, align: 'left'   },
+          { key: 'documentNo',       header: 'Ref. No.',        width: 70,  align: 'left'   },
+          { key: 'issuingAuthority', header: 'Issuing Auth.',   width: 90,  align: 'left'   },
+          { key: 'documentNumber',   header: 'Doc. Number',     width: 65,  align: 'left'   },
+          { key: 'revisionNumber',   header: 'Rev. No.',        width: 45,  align: 'center' },
+          { key: 'revisionDate',     header: 'Rev. Date',       width: 55,  align: 'center' },
+          { key: 'dateOfIssue',      header: 'Issue Date',      width: 55,  align: 'center' },
+          { key: 'dueDateForRenewal',header: 'Renewal Due',     width: 55,  align: 'center' },
+          { key: 'reportingFrequency',header: 'Frequency',      width: 65,  align: 'left'   },
+          { key: 'responsibility',   header: 'Resp.',           width: 65,  align: 'left'   },
+          { key: 'status',           header: 'Status',          width: 57,  align: 'center' }
         ];
 
         // Calculate total table width
@@ -107,11 +110,14 @@ class PDFExport {
             slNo: item.slNo || '',
             permit: (item.permit || '').substring(0, 40),
             documentNo: (item.documentNo || '').substring(0, 25),
-            issuingAuthority: (item.issuingAuthority || '').substring(0, 40),
+            issuingAuthority: (item.issuingAuthority || '').substring(0, 35),
+            documentNumber: (item.documentNumber || '').substring(0, 20),
+            revisionNumber: (item.revisionNumber || '').substring(0, 12),
+            revisionDate: item.revisionDate ? new Date(item.revisionDate).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : '',
             dateOfIssue: item.dateOfIssue ? new Date(item.dateOfIssue).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : 'N/A',
-            dueDateForRenewal: item.dueDateForRenewal ? new Date(item.dueDateForRenewal).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : 'N/A',
-            reportingFrequency: (item.reportingFrequency || 'N/A').substring(0, 22),
-            responsibility: (item.responsibility || '').substring(0, 22),
+            dueDateForRenewal: item.noExpiry ? 'No Expiry' : (item.dueDateForRenewal ? new Date(item.dueDateForRenewal).toLocaleDateString('en-IN', { day: '2-digit', month: 'short', year: '2-digit' }) : 'N/A'),
+            reportingFrequency: (item.reportingFrequency || 'N/A').substring(0, 20),
+            responsibility: (item.responsibility || '').substring(0, 20),
             status: item.status || 'N/A'
           };
 
