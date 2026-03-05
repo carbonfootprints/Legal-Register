@@ -99,14 +99,14 @@ legalRegisterSchema.pre('save', async function(next) {
     this.archivedAt = new Date();
   }
 
-  // Check if permit has expired based on dueDateForRenewal
-  if (this.dueDateForRenewal) {
+  // Check if permit has expired based on dateOfExpiry
+  if (this.dateOfExpiry) {
     const today = new Date();
     today.setHours(0, 0, 0, 0);
-    const dueDate = new Date(this.dueDateForRenewal);
-    dueDate.setHours(0, 0, 0, 0);
+    const expiryDate = new Date(this.dateOfExpiry);
+    expiryDate.setHours(0, 0, 0, 0);
 
-    if (dueDate < today && this.status === 'Active') {
+    if (expiryDate < today && this.status === 'Active') {
       this.status = 'Expired';
       this.isArchived = true;
       this.archivedAt = new Date();
