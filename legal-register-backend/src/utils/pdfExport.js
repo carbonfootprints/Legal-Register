@@ -37,7 +37,7 @@ class PDFExport {
         const columns = [
           { key: 'slNo', header: 'SL', width: 30, align: 'center' },
           { key: 'permit', header: 'Permit', width: 120, align: 'left' },
-          { key: 'documentNo', header: 'Document No.', width: 85, align: 'left' },
+          { key: 'documentNo', header: 'Ref. Number', width: 85, align: 'left' },
           { key: 'issuingAuthority', header: 'Issuing Authority', width: 120, align: 'left' },
           { key: 'dateOfIssue', header: 'Issue Date', width: 70, align: 'center' },
           { key: 'dueDateForRenewal', header: 'Renewal Due', width: 70, align: 'center' },

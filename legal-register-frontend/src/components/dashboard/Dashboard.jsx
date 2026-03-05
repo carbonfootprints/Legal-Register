@@ -52,7 +52,7 @@ const AlertSection = ({ title, color, items, renderExtra }) => {
             <div className="flex justify-between items-start">
               <div>
                 <p className="font-medium text-gray-900">{item.permit}</p>
-                <p className="text-sm text-gray-600">Document No: {item.documentNo}</p>
+                <p className="text-sm text-gray-600">Ref No: {item.documentNo}</p>
               </div>
               <div className="text-right">
                 <span className={`text-xs ${c.dateBadge} px-2 py-1 rounded block mb-1`}>

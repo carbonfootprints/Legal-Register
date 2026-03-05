@@ -244,7 +244,7 @@ class EmailService {
                 <td>${register.permit}</td>
               </tr>
               <tr>
-                <td>Document No.</td>
+                <td>Reference Number</td>
                 <td>${register.documentNo}</td>
               </tr>
               <tr>

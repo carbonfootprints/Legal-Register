@@ -62,7 +62,7 @@ class ExcelExport {
     worksheet.addRow([
       'SL No.',
       'Permit',
-      'Document No.',
+      'Reference Number',
       'Issuing Authority',
       'Date of Issue',
       'Date of Expiry',
