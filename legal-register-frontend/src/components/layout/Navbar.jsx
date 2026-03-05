@@ -5,7 +5,7 @@ import { FiLogOut, FiUser, FiMenu } from 'react-icons/fi';
 
 const PAGE_TITLES = {
   '/dashboard': 'Dashboard',
-  '/legal-registers': 'Legal Registers',
+  '/legal-registers': 'Legal Register',
   '/archived-permits': 'Archived Permits',
 };
 

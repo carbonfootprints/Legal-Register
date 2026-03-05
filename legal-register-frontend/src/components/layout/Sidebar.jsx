@@ -6,7 +6,7 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
   const { user } = useAuth();
   const navLinks = [
     { to: '/dashboard', icon: FiHome, label: 'Dashboard' },
-    { to: '/legal-registers', icon: FiFileText, label: 'Legal Registers' },
+    { to: '/legal-registers', icon: FiFileText, label: 'Legal Register' },
     { to: '/archived-permits', icon: FiArchive, label: 'Archived Permits' },
   ];
 

@@ -218,7 +218,7 @@ const LegalRegisterList = () => {
       {/* Header */}
       <div className="flex justify-between items-center">
         <div>
-          <h1 className="text-2xl font-bold text-gray-900">Legal Registers</h1>
+          <h1 className="text-2xl font-bold text-gray-900">Legal Register</h1>
           <p className="text-sm text-gray-500 mt-1">Manage permits and compliance documents</p>
         </div>
         <button
@@ -485,7 +485,11 @@ const LegalRegisterList = () => {
               <select
                 className={dateInputClass}
                 value={formData.reportingFrequency}
-                onChange={(e) => setFormData({ ...formData, reportingFrequency: e.target.value })}
+                onChange={(e) => setFormData({
+                  ...formData,
+                  reportingFrequency: e.target.value,
+                  dateOfLastReport: e.target.value === 'N/A' ? '' : formData.dateOfLastReport
+                })}
               >
                 <option value="N/A">N/A</option>
                 <option value="Monthly">Monthly</option>
@@ -501,12 +505,13 @@ const LegalRegisterList = () => {
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-700 mb-1">Date of Last Report</label>
+              <label className="block text-sm font-medium text-gray-700 mb-1">Date of last report</label>
               <input
                 type="date"
-                className={dateInputClass}
-                value={formData.dateOfLastReport}
+                className={`${dateInputClass} ${formData.reportingFrequency === 'N/A' ? 'bg-gray-100 cursor-not-allowed text-gray-400' : ''}`}
+                value={formData.reportingFrequency === 'N/A' ? '' : formData.dateOfLastReport}
                 onChange={(e) => setFormData({ ...formData, dateOfLastReport: e.target.value })}
+                disabled={formData.reportingFrequency === 'N/A'}
               />
             </div>
 

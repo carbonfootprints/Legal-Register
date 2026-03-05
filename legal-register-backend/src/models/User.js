@@ -27,6 +27,19 @@ const userSchema = new mongoose.Schema({
     trim: true,
     default: 'Legal Register Management'
   },
+  legalRegDocNo: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  legalRegRevNo: {
+    type: String,
+    trim: true,
+    default: ''
+  },
+  legalRegRevDate: {
+    type: Date
+  },
   role: {
     type: String,
     enum: ['user', 'admin'],

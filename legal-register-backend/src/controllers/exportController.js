@@ -42,7 +42,7 @@ export const exportToExcel = async (req, res) => {
     }
 
     // Generate Excel
-    const buffer = await ExcelExport.generateLegalRegisterExcel(data);
+    const buffer = await ExcelExport.generateLegalRegisterExcel(data, req.user);
 
     // Send file
     res.setHeader('Content-Type', 'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet');
