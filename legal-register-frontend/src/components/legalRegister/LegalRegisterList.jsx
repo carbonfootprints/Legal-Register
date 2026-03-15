@@ -29,9 +29,6 @@ const LegalRegisterList = () => {
     permit: '',
     documentNo: '',
     issuingAuthority: '',
-    documentNumber: '',
-    revisionNumber: '',
-    revisionDate: '',
     dateOfIssue: '',
     noExpiry: false,
     dateOfExpiry: '',
@@ -93,9 +90,6 @@ const LegalRegisterList = () => {
         permit: item.permit,
         documentNo: item.documentNo,
         issuingAuthority: item.issuingAuthority,
-        documentNumber: item.documentNumber || '',
-        revisionNumber: item.revisionNumber || '',
-        revisionDate: formatDateForInput(item.revisionDate),
         dateOfIssue: formatDateForInput(item.dateOfIssue),
         noExpiry: item.noExpiry || false,
         dateOfExpiry: formatDateForInput(item.dateOfExpiry),
@@ -113,9 +107,6 @@ const LegalRegisterList = () => {
         permit: '',
         documentNo: '',
         issuingAuthority: '',
-        documentNumber: '',
-        revisionNumber: '',
-        revisionDate: '',
         dateOfIssue: '',
         noExpiry: false,
         dateOfExpiry: '',
@@ -148,7 +139,6 @@ const LegalRegisterList = () => {
         dateOfExpiry: formData.noExpiry ? null : (formData.dateOfExpiry || null),
         dueDateForRenewal: formData.noExpiry ? null : (formData.dueDateForRenewal || null),
         dateOfLastReport: formData.dateOfLastReport || null,
-        revisionDate: formData.revisionDate || null,
       };
 
       if (permitDocumentFile || complianceReportFile) {
@@ -403,36 +393,6 @@ const LegalRegisterList = () => {
                 value={formData.documentNo}
                 onChange={(e) => setFormData({ ...formData, documentNo: e.target.value })}
               />
-            </div>
-
-            <div className="col-span-2 grid grid-cols-3 gap-4">
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Document Number</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  value={formData.documentNumber}
-                  onChange={(e) => setFormData({ ...formData, documentNumber: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700">Revision Number</label>
-                <input
-                  type="text"
-                  className={inputClass}
-                  value={formData.revisionNumber}
-                  onChange={(e) => setFormData({ ...formData, revisionNumber: e.target.value })}
-                />
-              </div>
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-1">Revision Date</label>
-                <input
-                  type="date"
-                  className={inputClass}
-                  value={formData.revisionDate}
-                  onChange={(e) => setFormData({ ...formData, revisionDate: e.target.value })}
-                />
-              </div>
             </div>
 
             <div>

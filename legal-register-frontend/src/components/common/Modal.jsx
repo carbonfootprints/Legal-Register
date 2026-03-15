@@ -1,14 +1,4 @@
-import { useEffect } from 'react';
-
 const Modal = ({ isOpen, onClose, title, children }) => {
-  useEffect(() => {
-    if (!isOpen) return;
-    const handleKeyDown = (e) => {
-      if (e.key === 'Escape') onClose();
-    };
-    document.addEventListener('keydown', handleKeyDown);
-    return () => document.removeEventListener('keydown', handleKeyDown);
-  }, [isOpen, onClose]);
 
   if (!isOpen) return null;
 
@@ -16,7 +6,7 @@ const Modal = ({ isOpen, onClose, title, children }) => {
     <div className="fixed inset-0 z-50 overflow-y-auto">
       <div className="flex items-center justify-center min-h-screen px-4 pt-4 pb-20 text-center sm:block sm:p-0">
         {/* Overlay */}
-        <div className="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-60 z-40" onClick={onClose}></div>
+        <div className="fixed inset-0 transition-opacity bg-gray-900 bg-opacity-60 z-40"></div>
 
         {/* Modal */}
         <div className="inline-block align-bottom bg-white rounded-xl text-left shadow-xl transform transition-all sm:my-8 sm:align-middle sm:max-w-2xl sm:w-full z-50 relative overflow-y-auto max-h-[90vh] animate-modal-in">
