@@ -99,12 +99,12 @@ const legalRegisterSchema = new mongoose.Schema({
 legalRegisterSchema.pre('save', async function(next) {
   if (this.isNew && !this.slNo) {
     try {
-      // Find last record for THIS user only
-      const lastRecord = await this.constructor.findOne(
-        { createdBy: this.createdBy },
-        { slNo: 1 }
-      ).sort({ slNo: -1 }).lean();
-      this.slNo = lastRecord ? lastRecord.slNo + 1 : 1;
+      const counter = await mongoose.connection.db.collection('counters').findOneAndUpdate(
+        { _id: `slNo_${this.createdBy}` },
+        { $inc: { seq: 1 } },
+        { upsert: true, returnDocument: 'after' }
+      );
+      this.slNo = counter.seq;
     } catch (error) {
       return next(error);
     }
