@@ -11,9 +11,6 @@ class ExcelExport {
       { key: 'permit',             width: 30 },
       { key: 'documentNo',         width: 25 },
       { key: 'issuingAuthority',   width: 40 },
-      { key: 'documentNumber',     width: 20 },
-      { key: 'revisionNumber',     width: 12 },
-      { key: 'revisionDate',       width: 15 },
       { key: 'dateOfIssue',        width: 15 },
       { key: 'dateOfExpiry',       width: 15 },
       { key: 'dueDateForRenewal',  width: 18 },
@@ -23,7 +20,7 @@ class ExcelExport {
       { key: 'status',             width: 15 },
     ];
 
-    const totalCols = 14;
+    const totalCols = 11;
 
     // ── Row 1: Document control header ────────────────────────────
     const revDate = user.legalRegRevDate
@@ -67,9 +64,6 @@ class ExcelExport {
       'Permit',
       'Reference Number',
       'Issuing Authority',
-      'Document Number',
-      'Revision Number',
-      'Revision Date',
       'Date of Issue',
       'Date of Expiry',
       'Due Date for Renewal',
@@ -103,9 +97,6 @@ class ExcelExport {
         permit:             item.permit,
         documentNo:         item.documentNo,
         issuingAuthority:   item.issuingAuthority,
-        documentNumber:     item.documentNumber || '',
-        revisionNumber:     item.revisionNumber || '',
-        revisionDate:       item.revisionDate ? new Date(item.revisionDate).toLocaleDateString('en-IN') : '',
         dateOfIssue:        item.dateOfIssue        ? new Date(item.dateOfIssue).toLocaleDateString('en-IN')        : 'N/A',
         dateOfExpiry:       expiryVal,
         dueDateForRenewal:  renewalVal,
