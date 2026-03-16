@@ -97,7 +97,7 @@ export const exportToPDF = async (req, res) => {
     }
 
     // Generate PDF
-    const buffer = await PDFExport.generateLegalRegisterPDF(data);
+    const buffer = await PDFExport.generateLegalRegisterPDF(data, req.user);
 
     // Send file
     res.setHeader('Content-Type', 'application/pdf');

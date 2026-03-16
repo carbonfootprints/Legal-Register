@@ -5,7 +5,7 @@ import Loader from '../common/Loader';
 import { formatDate, getStatusBadgeClass } from '../../utils/dateHelpers';
 import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
-import { FiDownload, FiFileText, FiArchive, FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { FiFileText, FiArchive, FiSearch, FiRefreshCw } from 'react-icons/fi';
 
 const ArchivedPermits = () => {
   const [registers, setRegisters] = useState([]);
@@ -58,16 +58,6 @@ const ArchivedPermits = () => {
     }
   };
 
-  const handleExportExcel = async () => {
-    try {
-      await exportService.exportToExcel({ search: debouncedSearch, archived: true });
-      toast.success('Excel file downloaded successfully');
-    } catch (error) {
-      logger.error('Error exporting to Excel:', error);
-      toast.error('Failed to export to Excel');
-    }
-  };
-
   const handleExportPDF = async () => {
     try {
       await exportService.exportToPDF({ search: debouncedSearch, archived: true });
@@ -99,13 +89,6 @@ const ArchivedPermits = () => {
           />
         </div>
         <div className="flex items-center space-x-2 flex-shrink-0">
-          <button
-            onClick={handleExportExcel}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
-          >
-            <FiDownload className="mr-1.5 h-4 w-4" />
-            Export Excel
-          </button>
           <button
             onClick={handleExportPDF}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"

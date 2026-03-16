@@ -122,7 +122,7 @@ const Profile = () => {
           </div>
 
           <div className="border-t border-gray-100 pt-4">
-            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Document Control (Excel Export Header)</p>
+            <p className="text-xs font-semibold text-gray-500 uppercase tracking-wide mb-3">Document Control (PDF Header)</p>
             <div className="grid grid-cols-3 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700">Document No.</label>

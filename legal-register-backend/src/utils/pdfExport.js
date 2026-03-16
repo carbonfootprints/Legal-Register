@@ -1,7 +1,7 @@
 import PDFDocument from 'pdfkit';
 
 class PDFExport {
-  static async generateLegalRegisterPDF(data) {
+  static async generateLegalRegisterPDF(data, user = {}) {
     return new Promise((resolve, reject) => {
       try {
         const doc = new PDFDocument({
@@ -18,8 +18,37 @@ class PDFExport {
         });
         doc.on('error', reject);
 
+        // Document control header (top-right block) — values from user profile
+        const docNo = user.legalRegDocNo || '';
+        const revNo = user.legalRegRevNo || '';
+        const revDate = user.legalRegRevDate
+          ? new Date(user.legalRegRevDate).toLocaleDateString('en-IN', { day: '2-digit', month: '2-digit', year: 'numeric' })
+          : '';
+        const headerBlockX = doc.page.width - 30 - 200;
+        const headerBlockY = 30;
+        const labelW = 90;
+        const valueW = 110;
+        const cellH = 18;
+
+        const headerRows = [
+          { label: 'Document No.', value: docNo },
+          { label: 'Revision No.', value: revNo },
+          { label: 'Revision Date', value: revDate }
+        ];
+
+        doc.fontSize(8).font('Helvetica-Bold');
+        headerRows.forEach((row, i) => {
+          const y = headerBlockY + i * cellH;
+          doc.rect(headerBlockX, y, labelW, cellH).fillAndStroke('#4472C4', '#000000');
+          doc.fillColor('#FFFFFF').text(row.label, headerBlockX + 3, y + 5, { width: labelW - 6, align: 'left', lineBreak: false });
+          doc.rect(headerBlockX + labelW, y, valueW, cellH).fillAndStroke('#FFFFFF', '#000000');
+          doc.fillColor('#000000').font('Helvetica').text(row.value, headerBlockX + labelW + 3, y + 5, { width: valueW - 6, align: 'left', lineBreak: false });
+          doc.font('Helvetica-Bold');
+        });
+
         // Title
-        doc.fontSize(18).font('Helvetica-Bold').text('Legal Register Report', {
+        doc.fillColor('#000000').fontSize(18).font('Helvetica-Bold').text('Legal Register Report', 30, headerBlockY + 10, {
+          width: headerBlockX - 40,
           align: 'center'
         });
         doc.moveDown(0.5);

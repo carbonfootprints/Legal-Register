@@ -2,8 +2,7 @@ import mongoose from 'mongoose';
 
 const legalRegisterSchema = new mongoose.Schema({
   slNo: {
-    type: Number,
-    unique: true
+    type: Number
   },
   permit: {
     type: String,
@@ -138,6 +137,9 @@ legalRegisterSchema.pre('save', async function(next) {
 
   next();
 });
+
+// Unique slNo per user (not globally unique)
+legalRegisterSchema.index({ slNo: 1, createdBy: 1 }, { unique: true });
 
 // Index for search and filter
 legalRegisterSchema.index({ permit: 'text', documentNo: 'text' });

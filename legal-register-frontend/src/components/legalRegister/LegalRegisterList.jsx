@@ -7,7 +7,7 @@ import Modal from '../common/Modal';
 import { formatDate, getStatusBadgeClass, getDaysUntilRenewal, getRenewalUrgencyBadge } from '../../utils/dateHelpers';
 import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
-import { FiEdit2, FiTrash2, FiPlus, FiDownload, FiFileText, FiUpload, FiX, FiSearch, FiCheck } from 'react-icons/fi';
+import { FiEdit2, FiTrash2, FiPlus, FiFileText, FiUpload, FiX, FiSearch, FiCheck } from 'react-icons/fi';
 
 const inputClass = 'mt-1 block w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors';
 const dateInputClass = 'w-full border border-gray-300 rounded-lg shadow-sm px-3 py-2 text-sm focus:outline-none focus:ring-2 focus:ring-emerald-500 focus:border-transparent transition-colors';
@@ -193,16 +193,6 @@ const LegalRegisterList = () => {
     }
   };
 
-  const handleExportExcel = async () => {
-    try {
-      await exportService.exportToExcel({ search: debouncedSearch });
-      toast.success('Excel file downloaded successfully');
-    } catch (error) {
-      logger.error('Error exporting to Excel:', error);
-      toast.error('Failed to export to Excel');
-    }
-  };
-
   const handleExportPDF = async () => {
     try {
       await exportService.exportToPDF({ search: debouncedSearch });
@@ -243,13 +233,6 @@ const LegalRegisterList = () => {
           />
         </div>
         <div className="flex items-center space-x-2 flex-shrink-0">
-          <button
-            onClick={handleExportExcel}
-            className="bg-emerald-600 hover:bg-emerald-700 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
-          >
-            <FiDownload className="mr-1.5 h-4 w-4" />
-            Export Excel
-          </button>
           <button
             onClick={handleExportPDF}
             className="bg-red-500 hover:bg-red-600 text-white px-4 py-2 rounded-lg flex items-center text-sm font-medium transition-colors"
