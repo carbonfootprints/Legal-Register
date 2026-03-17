@@ -12,14 +12,30 @@ class EmailService {
     });
   }
 
+  static htmlToPlainText(html) {
+    return html
+      .replace(/<style[^>]*>[\s\S]*?<\/style>/gi, '')
+      .replace(/<[^>]+>/g, ' ')
+      .replace(/\s{2,}/g, ' ')
+      .trim();
+  }
+
   static async sendEmail(to, subject, htmlContent) {
     const transporter = this.createTransporter();
 
     const mailOptions = {
       from: `"Legal Register System" <${process.env.EMAIL_USER}>`,
+      replyTo: process.env.EMAIL_USER,
       to: to,
       subject: subject,
-      html: htmlContent
+      html: htmlContent,
+      text: this.htmlToPlainText(htmlContent),
+      headers: {
+        'X-Mailer': 'Legal Register System',
+        'X-Priority': '3',
+        'Importance': 'Normal',
+        'List-Unsubscribe': `<mailto:${process.env.EMAIL_USER}?subject=unsubscribe>`
+      }
     };
 
     try {
@@ -51,33 +67,34 @@ class EmailService {
       <body>
         <div class="container">
           <div class="header">
-            <h2 style="margin: 0;">✅ Verify Your Email</h2>
+            <h2 style="margin: 0;">Account Activation - Legal Register</h2>
           </div>
           <div class="content">
             <p>Hello <strong>${name}</strong>,</p>
-            <p>Thank you for registering with the Legal Register Management System. Please verify your email address to activate your account.</p>
+            <p>Thank you for creating an account with the Legal Register Management System.</p>
+            <p>To complete your registration and activate your account, please click the button below:</p>
             <div style="text-align: center;">
-              <a href="${verifyUrl}" class="button">Verify Email Address</a>
+              <a href="${verifyUrl}" class="button">Activate My Account</a>
             </div>
             <p>Or copy and paste this link into your browser:</p>
             <p style="word-break: break-all; background: #e5e5e5; padding: 10px; border-radius: 5px; font-size: 12px;">${verifyUrl}</p>
             <div class="info">
-              <strong>ℹ️ Note:</strong>
+              <strong>Note:</strong>
               <ul style="margin: 10px 0 0 0; padding-left: 20px;">
-                <li>This link will expire in <strong>24 hours</strong></li>
-                <li>If you didn't create an account, please ignore this email</li>
+                <li>This link expires in <strong>24 hours</strong></li>
+                <li>If you did not create this account, please ignore this email</li>
               </ul>
             </div>
             <div class="footer">
               <p>This is an automated message from the Legal Register Management System.</p>
-              <p>Do not reply to this email.</p>
+              <p>Do not reply to this email. For queries, contact your system administrator.</p>
             </div>
           </div>
         </div>
       </body>
       </html>
     `;
-    return await this.sendEmail(email, 'Verify Your Email - Legal Register System', htmlContent);
+    return await this.sendEmail(email, 'Account Activation - Legal Register System', htmlContent);
   }
 
   static async sendPasswordResetEmail(email, name, resetUrl) {
