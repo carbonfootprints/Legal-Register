@@ -33,7 +33,7 @@ export const AuthProvider = ({ children }) => {
     try {
       const response = await authService.register(userData);
       if (response.success) {
-        setUser(response.data);
+        // Do not set user — email verification required before login
         return response;
       }
       throw new Error(response.message || 'Registration failed');

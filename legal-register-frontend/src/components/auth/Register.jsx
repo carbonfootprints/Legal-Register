@@ -1,13 +1,13 @@
 import { useState, useMemo } from 'react';
-import { useNavigate, Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import toast from 'react-hot-toast';
-import { FiEye, FiEyeOff, FiCheck, FiX } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiCheck, FiX, FiMail } from 'react-icons/fi';
 import { validatePassword, getPasswordStrength, getStrengthInfo } from '../../utils/passwordValidation';
 
 const Register = () => {
-  const navigate = useNavigate();
   const { register } = useAuth();
+  const [registeredEmail, setRegisteredEmail] = useState('');
   const [formData, setFormData] = useState({
     name: '',
     email: '',
@@ -52,8 +52,7 @@ const Register = () => {
 
     try {
       await register({ name, email, password, companyName });
-      toast.success('Registration successful!');
-      navigate('/dashboard');
+      setRegisteredEmail(email);
     } catch (error) {
       const errorMessage = error.response?.data?.message || 'Registration failed';
       toast.error(errorMessage);
@@ -61,6 +60,28 @@ const Register = () => {
       setLoading(false);
     }
   };
+
+  if (registeredEmail) {
+    return (
+      <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-emerald-50 via-teal-50 to-green-100 py-12 px-4">
+        <div className="max-w-md w-full bg-white/90 backdrop-blur-md p-10 rounded-3xl shadow-2xl border border-green-100 text-center">
+          <div className="inline-flex items-center justify-center w-20 h-20 bg-emerald-100 rounded-full mb-6">
+            <FiMail className="h-10 w-10 text-emerald-600" />
+          </div>
+          <h2 className="text-2xl font-bold text-gray-800 mb-2">Check your email</h2>
+          <p className="text-gray-600 mb-2">We sent a verification link to</p>
+          <p className="font-semibold text-emerald-600 mb-6">{registeredEmail}</p>
+          <p className="text-sm text-gray-500 mb-8">Click the link in the email to activate your account. The link expires in 24 hours.</p>
+          <Link
+            to="/login"
+            className="inline-flex items-center justify-center w-full py-3 px-4 bg-gradient-to-r from-green-600 to-emerald-600 text-white font-semibold rounded-xl hover:from-green-700 hover:to-emerald-700 transition-all"
+          >
+            Go to Login
+          </Link>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-gradient-to-br from-green-50 via-emerald-50 to-teal-100 py-12 px-4 sm:px-6 lg:px-8 relative overflow-hidden">

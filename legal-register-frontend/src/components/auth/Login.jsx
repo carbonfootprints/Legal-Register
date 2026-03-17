@@ -1,8 +1,9 @@
-import { useState } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
+import authService from '../../services/authService';
 import toast from 'react-hot-toast';
-import { FiEye, FiEyeOff, FiArrowRight } from 'react-icons/fi';
+import { FiEye, FiEyeOff, FiArrowRight, FiMail, FiRefreshCw } from 'react-icons/fi';
 
 const Login = () => {
   const navigate = useNavigate();
@@ -13,6 +14,44 @@ const Login = () => {
   });
   const [loading, setLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
+  const [unverifiedEmail, setUnverifiedEmail] = useState('');
+  const [resendCooldown, setResendCooldown] = useState(0);
+  const [resendLoading, setResendLoading] = useState(false);
+  const cooldownRef = useRef(null);
+
+  useEffect(() => {
+    return () => clearInterval(cooldownRef.current);
+  }, []);
+
+  const startCooldown = (seconds) => {
+    setResendCooldown(seconds);
+    clearInterval(cooldownRef.current);
+    cooldownRef.current = setInterval(() => {
+      setResendCooldown((prev) => {
+        if (prev <= 1) { clearInterval(cooldownRef.current); return 0; }
+        return prev - 1;
+      });
+    }, 1000);
+  };
+
+  const handleResend = async () => {
+    setResendLoading(true);
+    try {
+      await authService.resendVerificationEmail(unverifiedEmail);
+      toast.success('Verification email sent!');
+      startCooldown(300);
+    } catch (error) {
+      const data = error.response?.data;
+      if (data?.remainingSeconds) {
+        startCooldown(data.remainingSeconds);
+        toast.error(`Please wait ${Math.ceil(data.remainingSeconds / 60)} min before resending`);
+      } else {
+        toast.error(data?.message || 'Failed to resend email');
+      }
+    } finally {
+      setResendLoading(false);
+    }
+  };
 
   const { email, password } = formData;
 
@@ -35,8 +74,13 @@ const Login = () => {
       toast.success('Login successful!');
       navigate('/dashboard');
     } catch (error) {
-      const errorMessage = error.response?.data?.message || 'Login failed';
-      toast.error(errorMessage);
+      const data = error.response?.data;
+      if (data?.requiresVerification) {
+        setUnverifiedEmail(data.email || email);
+        startCooldown(300);
+      } else {
+        toast.error(data?.message || 'Login failed');
+      }
     } finally {
       setLoading(false);
     }
@@ -61,6 +105,33 @@ const Login = () => {
             <h2 className="text-2xl font-semibold text-gray-800 mb-2">Welcome Back!</h2>
             <p className="text-gray-600 text-sm">Sign in to manage your permits and compliance</p>
           </div>
+
+          {unverifiedEmail && (
+            <div className="mb-4 p-4 bg-amber-50 border border-amber-200 rounded-xl">
+              <div className="flex items-start gap-3">
+                <FiMail className="h-5 w-5 text-amber-500 mt-0.5 flex-shrink-0" />
+                <div className="flex-1 min-w-0">
+                  <p className="text-sm font-semibold text-amber-800">Email not verified</p>
+                  <p className="text-xs text-amber-700 mt-0.5">
+                    A verification link was sent to <span className="font-medium">{unverifiedEmail}</span>. Please check your inbox.
+                  </p>
+                  <button
+                    type="button"
+                    onClick={handleResend}
+                    disabled={resendCooldown > 0 || resendLoading}
+                    className="mt-2 inline-flex items-center text-xs font-semibold text-amber-700 hover:text-amber-900 disabled:opacity-50 disabled:cursor-not-allowed transition-colors"
+                  >
+                    <FiRefreshCw className={`mr-1 h-3.5 w-3.5 ${resendLoading ? 'animate-spin' : ''}`} />
+                    {resendLoading
+                      ? 'Sending...'
+                      : resendCooldown > 0
+                        ? `Resend in ${Math.floor(resendCooldown / 60)}:${String(resendCooldown % 60).padStart(2, '0')}`
+                        : 'Resend verification email'}
+                  </button>
+                </div>
+              </div>
+            </div>
+          )}
 
           <form className="space-y-5" onSubmit={onSubmit}>
             <div>

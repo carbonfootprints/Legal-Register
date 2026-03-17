@@ -84,27 +84,37 @@ export const register = async (req, res) => {
       });
     }
 
-    // Create user
+    // Create user (unverified)
     const user = await User.create({
       name,
       email,
       password,
-      companyName: companyName || 'Legal Register Management'
+      companyName: companyName || 'Legal Register Management',
+      isEmailVerified: false
     });
 
-    if (user) {
-      sendTokenCookie(res, generateToken(user._id));
-      res.status(201).json({
-        success: true,
-        data: {
-          _id: user._id,
-          name: user.name,
-          email: user.email,
-          role: user.role,
-          companyName: user.companyName,
-        }
+    // Generate verification token and send email
+    const verifyToken = user.getEmailVerificationToken();
+    await user.save({ validateBeforeSave: false });
+
+    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${verifyToken}`;
+
+    try {
+      await EmailService.sendVerificationEmail(user.email, user.name, verifyUrl);
+    } catch (emailError) {
+      // If email fails, delete the user so they can retry registration
+      await User.findByIdAndDelete(user._id);
+      return res.status(500).json({
+        success: false,
+        message: 'Failed to send verification email. Please try again.'
       });
     }
+
+    res.status(201).json({
+      success: true,
+      requiresVerification: true,
+      message: 'Registration successful! Please check your email to verify your account.'
+    });
   } catch (error) {
     res.status(500).json({
       success: false,
@@ -143,6 +153,16 @@ export const login = async (req, res) => {
       return res.status(401).json({
         success: false,
         message: 'User account is inactive'
+      });
+    }
+
+    // Block unverified new users (existing users have isEmailVerified=undefined, not false)
+    if (user.isEmailVerified === false) {
+      return res.status(401).json({
+        success: false,
+        requiresVerification: true,
+        email: user.email,
+        message: 'Please verify your email before logging in.'
       });
     }
 
@@ -337,6 +357,93 @@ export const forgotPassword = async (req, res) => {
       success: false,
       message: error.message
     });
+  }
+};
+
+// @desc    Verify email with token
+// @route   GET /api/auth/verify-email/:token
+// @access  Public
+export const verifyEmail = async (req, res) => {
+  try {
+    const { token } = req.params;
+
+    const emailVerificationToken = crypto.createHash('sha256').update(token).digest('hex');
+
+    const user = await User.findOne({
+      emailVerificationToken,
+      emailVerificationExpire: { $gt: Date.now() }
+    });
+
+    if (!user) {
+      return res.status(400).json({
+        success: false,
+        message: 'Invalid or expired verification link. Please request a new one.'
+      });
+    }
+
+    user.isEmailVerified = true;
+    user.emailVerificationToken = undefined;
+    user.emailVerificationExpire = undefined;
+    user.emailVerificationSentAt = undefined;
+    await user.save({ validateBeforeSave: false });
+
+    res.json({
+      success: true,
+      message: 'Email verified successfully! You can now log in.'
+    });
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
+  }
+};
+
+// @desc    Resend verification email
+// @route   POST /api/auth/resend-verification
+// @access  Public
+export const resendVerificationEmail = async (req, res) => {
+  try {
+    const { email } = req.body;
+
+    if (!email) {
+      return res.status(400).json({ success: false, message: 'Please provide an email address' });
+    }
+
+    const user = await User.findOne({ email });
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: 'No account found with this email' });
+    }
+
+    if (user.isEmailVerified !== false) {
+      return res.status(400).json({ success: false, message: 'This email is already verified' });
+    }
+
+    // Check 5-minute cooldown
+    if (user.emailVerificationSentAt) {
+      const fiveMinutes = 5 * 60 * 1000;
+      const elapsed = Date.now() - new Date(user.emailVerificationSentAt).getTime();
+      if (elapsed < fiveMinutes) {
+        const remainingSeconds = Math.ceil((fiveMinutes - elapsed) / 1000);
+        return res.status(429).json({
+          success: false,
+          message: `Please wait before requesting another email`,
+          remainingSeconds
+        });
+      }
+    }
+
+    const verifyToken = user.getEmailVerificationToken();
+    await user.save({ validateBeforeSave: false });
+
+    const verifyUrl = `${process.env.FRONTEND_URL}/verify-email/${verifyToken}`;
+
+    try {
+      await EmailService.sendVerificationEmail(user.email, user.name, verifyUrl);
+      res.json({ success: true, message: 'Verification email sent successfully' });
+    } catch (emailError) {
+      return res.status(500).json({ success: false, message: 'Failed to send email. Please try again.' });
+    }
+  } catch (error) {
+    res.status(500).json({ success: false, message: error.message });
   }
 };
 

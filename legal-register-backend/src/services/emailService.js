@@ -33,6 +33,53 @@ class EmailService {
     }
   }
 
+  static async sendVerificationEmail(email, name, verifyUrl) {
+    const htmlContent = `
+      <!DOCTYPE html>
+      <html>
+      <head>
+        <style>
+          body { font-family: Arial, sans-serif; line-height: 1.6; color: #333; }
+          .container { max-width: 600px; margin: 0 auto; padding: 20px; }
+          .header { background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white; padding: 30px; text-align: center; border-radius: 10px 10px 0 0; }
+          .content { background-color: #f9f9f9; padding: 30px; border-radius: 0 0 10px 10px; }
+          .button { display: inline-block; background: linear-gradient(135deg, #10B981 0%, #059669 100%); color: white !important; padding: 15px 30px; text-decoration: none; border-radius: 8px; font-weight: bold; margin: 20px 0; }
+          .info { background-color: #D1FAE5; border-left: 4px solid #10B981; padding: 15px; margin: 20px 0; border-radius: 0 5px 5px 0; }
+          .footer { margin-top: 30px; padding-top: 20px; border-top: 2px solid #ddd; color: #666; font-size: 12px; text-align: center; }
+        </style>
+      </head>
+      <body>
+        <div class="container">
+          <div class="header">
+            <h2 style="margin: 0;">✅ Verify Your Email</h2>
+          </div>
+          <div class="content">
+            <p>Hello <strong>${name}</strong>,</p>
+            <p>Thank you for registering with the Legal Register Management System. Please verify your email address to activate your account.</p>
+            <div style="text-align: center;">
+              <a href="${verifyUrl}" class="button">Verify Email Address</a>
+            </div>
+            <p>Or copy and paste this link into your browser:</p>
+            <p style="word-break: break-all; background: #e5e5e5; padding: 10px; border-radius: 5px; font-size: 12px;">${verifyUrl}</p>
+            <div class="info">
+              <strong>ℹ️ Note:</strong>
+              <ul style="margin: 10px 0 0 0; padding-left: 20px;">
+                <li>This link will expire in <strong>24 hours</strong></li>
+                <li>If you didn't create an account, please ignore this email</li>
+              </ul>
+            </div>
+            <div class="footer">
+              <p>This is an automated message from the Legal Register Management System.</p>
+              <p>Do not reply to this email.</p>
+            </div>
+          </div>
+        </div>
+      </body>
+      </html>
+    `;
+    return await this.sendEmail(email, 'Verify Your Email - Legal Register System', htmlContent);
+  }
+
   static async sendPasswordResetEmail(email, name, resetUrl) {
     const htmlContent = `
       <!DOCTYPE html>

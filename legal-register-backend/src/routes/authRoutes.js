@@ -1,5 +1,5 @@
 import express from 'express';
-import { register, login, getMe, logout, forgotPassword, resetPassword, updateProfile, changePassword } from '../controllers/authController.js';
+import { register, login, getMe, logout, forgotPassword, resetPassword, updateProfile, changePassword, verifyEmail, resendVerificationEmail } from '../controllers/authController.js';
 import { protect } from '../middleware/auth.js';
 import { authLimiter, passwordResetLimiter } from '../middleware/rateLimiter.js';
 
@@ -179,6 +179,8 @@ router.put('/change-password', protect, changePassword);
  *       200:
  *         description: Reset email sent (if account exists)
  */
+router.get('/verify-email/:token', verifyEmail);
+router.post('/resend-verification', authLimiter, resendVerificationEmail);
 router.post('/forgot-password', passwordResetLimiter, forgotPassword);
 
 /**

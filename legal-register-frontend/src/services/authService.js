@@ -4,10 +4,19 @@ const authService = {
   // Register new user
   register: async (userData) => {
     const response = await api.post('/auth/register', userData);
-    if (response.data.success) {
-      // Token is set as httpOnly cookie by server; store only non-sensitive profile data
-      localStorage.setItem('user', JSON.stringify(response.data.data));
-    }
+    // Do NOT store user — they must verify email first
+    return response.data;
+  },
+
+  // Verify email with token from link
+  verifyEmail: async (token) => {
+    const response = await api.get(`/auth/verify-email/${token}`);
+    return response.data;
+  },
+
+  // Resend verification email
+  resendVerificationEmail: async (email) => {
+    const response = await api.post('/auth/resend-verification', { email });
     return response.data;
   },
 
