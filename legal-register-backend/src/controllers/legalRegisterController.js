@@ -10,6 +10,21 @@ export const createLegalRegister = async (req, res) => {
       createdBy: req.user._id,
     });
 
+    // Archive any previous non-archived entries with the same permit name for this user
+    await LegalRegister.updateMany(
+      {
+        _id: { $ne: legalRegister._id },
+        createdBy: req.user._id,
+        permit: { $regex: `^${req.body.permit.replace(/[.*+?^${}()|[\]\\]/g, '\\$&')}$`, $options: 'i' },
+        isArchived: false,
+      },
+      {
+        isArchived: true,
+        archivedAt: new Date(),
+        status: 'Cancelled',
+      }
+    );
+
     res.status(201).json({
       success: true,
       data: legalRegister,

@@ -1,5 +1,5 @@
 import { NavLink } from 'react-router-dom';
-import { FiHome, FiFileText, FiArchive, FiX } from 'react-icons/fi';
+import { FiHome, FiFileText, FiArchive, FiX, FiMail } from 'react-icons/fi';
 import { useAuth } from '../../context/AuthContext';
 
 const Sidebar = ({ isOpen, closeSidebar }) => {
@@ -64,8 +64,15 @@ const Sidebar = ({ isOpen, closeSidebar }) => {
           </div>
         </nav>
 
-        {/* Bottom version tag */}
-        <div className="absolute bottom-4 left-0 right-0 px-5">
+        {/* Bottom: support + version */}
+        <div className="absolute bottom-4 left-0 right-0 px-5 space-y-2">
+          <a
+            href="mailto:alertiocloud@gmail.com"
+            className="flex items-center justify-center gap-1.5 text-xs text-slate-400 hover:text-emerald-400 transition-colors"
+          >
+            <FiMail className="h-3.5 w-3.5" />
+            Contact Support
+          </a>
           <p className="text-xs text-slate-500 text-center">PCF Legal Register v1.0</p>
         </div>
       </div>

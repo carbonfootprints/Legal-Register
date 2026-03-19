@@ -87,7 +87,7 @@ class EmailService {
             </div>
             <div class="footer">
               <p>This is an automated message from the Legal Register Management System.</p>
-              <p>Do not reply to this email. For queries, contact your system administrator.</p>
+              <p>Do not reply to this email. For support, contact us at <a href="mailto:alertiocloud@gmail.com">alertiocloud@gmail.com</a></p>
             </div>
           </div>
         </div>
@@ -185,7 +185,7 @@ class EmailService {
 
             <div class="footer">
               <p>This is an automated message from the Legal Register Management System.</p>
-              <p>Do not reply to this email. For any queries, please contact your system administrator.</p>
+              <p>Do not reply to this email. For support, contact us at <a href="mailto:alertiocloud@gmail.com">alertiocloud@gmail.com</a></p>
             </div>
           </div>
         </div>
@@ -347,7 +347,7 @@ class EmailService {
 
             <div class="footer">
               <p>This is an automated message from the Legal Register Management System.</p>
-              <p>Do not reply to this email. For any queries, please contact your system administrator.</p>
+              <p>Do not reply to this email. For support, contact us at <a href="mailto:alertiocloud@gmail.com">alertiocloud@gmail.com</a></p>
             </div>
           </div>
         </div>

@@ -5,14 +5,13 @@ import Loader from '../common/Loader';
 import { formatDate, getStatusBadgeClass } from '../../utils/dateHelpers';
 import logger from '../../utils/logger';
 import toast from 'react-hot-toast';
-import { FiFileText, FiArchive, FiSearch, FiRefreshCw } from 'react-icons/fi';
+import { FiFileText, FiArchive, FiSearch } from 'react-icons/fi';
 
 const ArchivedPermits = () => {
   const [registers, setRegisters] = useState([]);
   const [loading, setLoading] = useState(true);
   const [searchTerm, setSearchTerm] = useState('');
   const [debouncedSearch, setDebouncedSearch] = useState('');
-  const [restoringId, setRestoringId] = useState(null);
 
   // Debounce search input by 300ms
   useEffect(() => {
@@ -41,20 +40,6 @@ const ArchivedPermits = () => {
       toast.error('Failed to load archived permits');
     } finally {
       setLoading(false);
-    }
-  };
-
-  const handleRestore = async (id) => {
-    setRestoringId(id);
-    try {
-      await legalRegisterService.restore(id);
-      toast.success('Permit restored to Active successfully');
-      fetchArchivedRegisters();
-    } catch (error) {
-      logger.error('Error restoring register:', error);
-      toast.error('Failed to restore permit');
-    } finally {
-      setRestoringId(null);
     }
   };
 
@@ -131,7 +116,6 @@ const ArchivedPermits = () => {
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Date of Expiry</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Archived At</th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Status</th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider">Action</th>
                 </tr>
               </thead>
               <tbody className="bg-white divide-y divide-gray-200">
@@ -148,17 +132,6 @@ const ArchivedPermits = () => {
                       <span className={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${getStatusBadgeClass(register.status)}`}>
                         {register.status}
                       </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <button
-                        onClick={() => handleRestore(register._id)}
-                        disabled={restoringId === register._id}
-                        className="inline-flex items-center px-3 py-1.5 text-xs font-medium text-emerald-700 bg-emerald-50 border border-emerald-200 rounded-lg hover:bg-emerald-100 transition-colors disabled:opacity-50"
-                        title="Restore to Active"
-                      >
-                        <FiRefreshCw className={`mr-1.5 h-3.5 w-3.5 ${restoringId === register._id ? 'animate-spin' : ''}`} />
-                        {restoringId === register._id ? 'Restoring...' : 'Restore'}
-                      </button>
                     </td>
                   </tr>
                 ))}

@@ -284,9 +284,15 @@ const Register = () => {
             </div>
           </form>
 
-          <div className="mt-8 pt-6 border-t border-green-100">
+          <div className="mt-8 pt-6 border-t border-green-100 space-y-2">
             <p className="text-xs text-center text-gray-500 italic">
               "The greatest threat to our planet is the belief that someone else will save it 🌍"
+            </p>
+            <p className="text-xs text-center text-gray-400">
+              Need help?{' '}
+              <a href="mailto:alertiocloud@gmail.com" className="text-emerald-600 hover:text-emerald-700 font-medium transition-colors">
+                alertiocloud@gmail.com
+              </a>
             </p>
           </div>
         </div>
